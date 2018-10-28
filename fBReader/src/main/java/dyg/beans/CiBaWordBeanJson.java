@@ -3,7 +3,6 @@ package dyg.beans;
 import java.util.List;
 
 public class CiBaWordBeanJson {
-todo http://www.paincker.com/gson-technic
 
     /**
      * word_name : hello

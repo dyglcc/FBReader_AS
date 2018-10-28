@@ -37,10 +37,6 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import com.baidu.translate.demo.OnGetResult;
-import com.baidu.translate.demo.TransUtils;
 
 import org.geometerplus.android.fbreader.api.ApiListener;
 import org.geometerplus.android.fbreader.api.ApiServerImplementation;
@@ -94,6 +90,7 @@ import java.util.List;
 import java.util.Map;
 
 import dyg.beans.CiBaWordBeanJson;
+import dyg.beans.GsonBuildList;
 import dyg.net.LoveFamousBookNet;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -351,27 +348,27 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             }
         }
 
-        TransUtils.requestNet("good morning", new OnGetResult() {
-            @Override
-            public void onGetResult(final String result) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(FBReader.this, result, Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
+//        TransUtils.requestNet("good morning", new OnGetResult() {
+//            @Override
+//            public void onGetResult(final String result) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(FBReader.this, result, Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://dict-co.iciba.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(GsonBuildList.buildGson()))
                 .build();
         LoveFamousBookNet lbn = retrofit.create(LoveFamousBookNet.class);
         HashMap map = new HashMap();
-        map.put("w","hello");
-        map.put("type","json");
-        map.put("key","297EB35CDF5FEEEFD6A13200E46FA720");
+        map.put("w", "hello");
+        map.put("type", "json");
+        map.put("key", "297EB35CDF5FEEEFD6A13200E46FA720");
         Call<CiBaWordBeanJson> res = lbn.getWords(map);
         res.enqueue(new Callback<CiBaWordBeanJson>() {
             @Override
@@ -380,7 +377,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 CiBaWordBeanJson ciBaWordBeanJson = response.body();
                 if (ciBaWordBeanJson != null) {
                     CiBaWordBeanJson.ExchangeBean exchangeBean = ciBaWordBeanJson.getExchange();
-                    String str = ciBaWordBeanJson.getIs_CRI();
+                    int str = ciBaWordBeanJson.getIs_CRI();
                     List<CiBaWordBeanJson.SymbolsBean> list = ciBaWordBeanJson.getSymbols();
                     String wordname = ciBaWordBeanJson.getWord_name();
                 }

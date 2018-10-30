@@ -69,7 +69,7 @@ final class BitmapManagerImpl implements BitmapManager {
 				myBitmaps[iIndex] = Bitmap.createBitmap(myWidth, myHeight, Bitmap.Config.RGB_565);
 			}
 		}
-		myWidget.drawOnBimyBitmapManagertmap(myBitmaps[iIndex], index);
+		myWidget.drawOnBitmap(myBitmaps[iIndex], index);
 		return myBitmaps[iIndex];
 	}
 

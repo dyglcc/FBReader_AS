@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -375,6 +376,12 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
     private volatile boolean myPendingDoubleTap;
     private int myPressedX, myPressedY;
     private boolean myScreenIsTouched;
+    private static final int isUpOrDownMove_vertical = 1;
+    private static final int isUpOrDownMove_horizontal = 2;
+    private static final int isAMove = 3;
+    private static final int NONE = 0;
+    private static int mMoveState = NONE;
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -399,6 +406,7 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                 view.onFingerEventCancelled();
                 break;
             case MotionEvent.ACTION_UP:
+                mMoveState = 0;
                 if (myPendingDoubleTap) {
                     view.onFingerDoubleTap(x, y);
                 } else if (myLongClickPerformed) {
@@ -439,40 +447,54 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                 myPressedY = y;
                 break;
             case MotionEvent.ACTION_MOVE: {
-                FBReaderApp fbReaderApp = (FBReaderApp) FBReaderApp.Instance();
-                boolean isHorizotal = fbReaderApp.PageTurningOptions.Horizontal.getValue();
+                if (mMoveState == NONE) {
+                    FBReaderApp fbReaderApp = (FBReaderApp) FBReaderApp.Instance();
+                    boolean isHorizotal = fbReaderApp.PageTurningOptions.Horizontal.getValue();
 
-                final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-                final boolean isUpOrDownMove_horizotal = isHorizotal && Math.abs(myPressedY - y) > slop && Math.abs(myPressedX - x) < slop;
-                final boolean isUpOrDownMove_vertical = !isHorizotal && Math.abs(myPressedY - y) < slop && Math.abs(myPressedX - x) > slop;
+                    final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+                    boolean isUpOrDownMove_horizontal_boolean = isHorizotal && Math.abs(myPressedY - y) > slop && Math.abs(myPressedX - x) < slop;
+                    boolean isUpOrDownMove_vertical_boolean = !isHorizotal && Math.abs(myPressedY - y) < slop && Math.abs(myPressedX - x) > slop;
+                    if (isUpOrDownMove_horizontal_boolean || isUpOrDownMove_vertical_boolean) {
+                        mMoveState = isUpOrDownMove_horizontal;
+                    }
 
-                final boolean isAMove =
-                        (isHorizotal && Math.abs(myPressedX - x) > slop) || (!isHorizotal && Math.abs(myPressedY - y) > slop);
-                if (isAMove || isUpOrDownMove_horizotal || isUpOrDownMove_vertical) {
-                    myPendingDoubleTap = false;
+                    boolean isAMove_boolean =
+                            (isHorizotal && Math.abs(myPressedX - x) > slop) || (!isHorizotal && Math.abs(myPressedY - y) > slop);
+                    if (isAMove_boolean) {
+                        mMoveState = isAMove;
+                    }
                 }
-                if (myLongClickPerformed) {
-                    view.onFingerMoveAfterLongPress(x, y);
-                } else {
-                    if (myPendingPress) {
-                        if (isAMove || isUpOrDownMove_horizotal || isUpOrDownMove_vertical) {
-                            if (myPendingShortClickRunnable != null) {
-                                removeCallbacks(myPendingShortClickRunnable);
-                                myPendingShortClickRunnable = null;
+
+                if (mMoveState == isUpOrDownMove_horizontal || mMoveState == isUpOrDownMove_vertical) {
+                    view.onFingerUp(x, y);
+                }
+                if (mMoveState == isAMove) {
+                    if (isAMove == 3) {
+                        myPendingDoubleTap = false;
+                    }
+                    if (myLongClickPerformed) {
+                        view.onFingerMoveAfterLongPress(x, y);
+                    } else {
+                        Log.d("test", "onTouchEvent:   isMove " + isAMove + " is isUpOrDownMove_horizotal " + isUpOrDownMove_horizontal + " isUpOrDownMove_vertical " + isUpOrDownMove_vertical);
+                        if (myPendingPress) {
+                            if (isAMove == 3) {
+                                if (myPendingShortClickRunnable != null) {
+                                    removeCallbacks(myPendingShortClickRunnable);
+                                    myPendingShortClickRunnable = null;
+                                }
+                                if (myPendingLongClickRunnable != null) {
+                                    removeCallbacks(myPendingLongClickRunnable);
+                                }
+                                view.onFingerPress(myPressedX, myPressedY);
+                                myPendingPress = false;
                             }
-                            if (myPendingLongClickRunnable != null) {
-                                removeCallbacks(myPendingLongClickRunnable);
-                            }
-                            view.onFingerPress(myPressedX, myPressedY);
-                            myPendingPress = false;
+                        }
+                        if (!myPendingPress && isAMove == 3) {
+                            view.onFingerMove(x, y);
                         }
                     }
-                    if (!myPendingPress && isAMove) {
-                        view.onFingerMove(x, y);
-                    }else{
-                        view.
-                    }
                 }
+
                 break;
             }
         }

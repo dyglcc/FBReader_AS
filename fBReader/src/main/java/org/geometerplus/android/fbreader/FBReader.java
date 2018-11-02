@@ -89,15 +89,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import dyg.beans.CiBaWordBeanJson;
-import dyg.beans.GsonBuildList;
-import dyg.net.LoveFamousBookNet;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow {
     public static final int RESULT_DO_NOTHING = RESULT_FIRST_USER;
     public static final int RESULT_REPAINT = RESULT_FIRST_USER + 1;
@@ -296,6 +287,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         myFBReaderApp.addAction(ActionCode.SHOW_NETWORK_LIBRARY, new ShowNetworkLibraryAction(this, myFBReaderApp));
 
         myFBReaderApp.addAction(ActionCode.SHOW_MENU, new ShowMenuAction(this, myFBReaderApp));
+        myFBReaderApp.addAction(ActionCode.SHOW_TRANSLATE, new TranslateAction(this, myFBReaderApp));
         myFBReaderApp.addAction(ActionCode.SHOW_NAVIGATION, new ShowNavigationAction(this, myFBReaderApp));
         myFBReaderApp.addAction(ActionCode.SEARCH, new SearchAction(this, myFBReaderApp));
         myFBReaderApp.addAction(ActionCode.SHARE_BOOK, new ShareBookAction(this, myFBReaderApp));
@@ -359,37 +351,6 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
 //                });
 //            }
 //        });
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://dict-co.iciba.com/")
-                .addConverterFactory(GsonConverterFactory.create(GsonBuildList.buildGson()))
-                .build();
-        LoveFamousBookNet lbn = retrofit.create(LoveFamousBookNet.class);
-        HashMap map = new HashMap();
-        map.put("w", "hello");
-        map.put("type", "json");
-        map.put("key", "297EB35CDF5FEEEFD6A13200E46FA720");
-        Call<CiBaWordBeanJson> res = lbn.getWords(map);
-        res.enqueue(new Callback<CiBaWordBeanJson>() {
-            @Override
-            public void onResponse(Call<CiBaWordBeanJson> call, Response<CiBaWordBeanJson> response) {
-
-                CiBaWordBeanJson ciBaWordBeanJson = response.body();
-                if (ciBaWordBeanJson != null) {
-                    CiBaWordBeanJson.ExchangeBean exchangeBean = ciBaWordBeanJson.getExchange();
-                    int str = ciBaWordBeanJson.getIs_CRI();
-                    List<CiBaWordBeanJson.SymbolsBean> list = ciBaWordBeanJson.getSymbols();
-                    String wordname = ciBaWordBeanJson.getWord_name();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<CiBaWordBeanJson> call, Throwable t) {
-                System.out.println("请求失败");
-                System.out.println(t.getMessage());
-            }
-        });
 
     }
 

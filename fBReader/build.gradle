@@ -47,7 +47,7 @@ dependencies {
     implementation project(':library')
     implementation project(':superToasts')
     implementation project(':translate_bd')
-    compile 'com.google.code.gson:gson:2.3.0'
+//    compile 'com.google.code.gson:gson:2.3.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'

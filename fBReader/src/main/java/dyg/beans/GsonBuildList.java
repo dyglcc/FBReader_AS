@@ -12,22 +12,28 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GsonBuildList {
     public static Gson normalGson = new Gson();
 
-    static class numberJsonSerializer implements JsonSerializer<CiBaWordBeanJson.ExchangeBean>, JsonDeserializer<CiBaWordBeanJson.ExchangeBean> {
+    static class numberJsonSerializer implements JsonSerializer<List<String>>, JsonDeserializer<List<String>> {
         @Override
-        public CiBaWordBeanJson.ExchangeBean deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            if (jsonElement.isJsonObject()) {
-                return normalGson.fromJson(jsonElement, type);
+        public List<String> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            if (jsonElement.isJsonArray()) {
+                return normalGson.fromJson(jsonElement, List.class);
             } else {
-                return new CiBaWordBeanJson.ExchangeBean();
+                List list = new ArrayList<>();
+                if (!android.text.TextUtils.isEmpty(jsonElement.getAsString())) {
+                    list.add(jsonElement.getAsString());
+                }
+                return list;
             }
         }
 
         @Override
-        public JsonElement serialize(CiBaWordBeanJson.ExchangeBean src, Type typeOfSrc, JsonSerializationContext context) {
+        public JsonElement serialize(List<String> src, Type typeOfSrc, JsonSerializationContext context) {
             return null;
         }
     }
@@ -44,7 +50,7 @@ public class GsonBuildList {
                 .registerTypeAdapter(double.class, new DoubleDefault0Adapter())
                 .registerTypeAdapter(Long.class, new LongDefault0Adapter())
                 .registerTypeAdapter(long.class, new LongDefault0Adapter())
-                .registerTypeAdapter(CiBaWordBeanJson.ExchangeBean.class, new numberJsonSerializer())
+                .registerTypeAdapter(List.class, new numberJsonSerializer())
                 .create();
 
         return gson;

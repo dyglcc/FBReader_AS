@@ -406,7 +406,6 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                 view.onFingerEventCancelled();
                 break;
             case MotionEvent.ACTION_UP:
-                mMoveState = 0;
                 if (myPendingDoubleTap) {
                     view.onFingerDoubleTap(x, y);
                 } else if (myLongClickPerformed) {
@@ -423,11 +422,16 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                             }
                             postDelayed(myPendingShortClickRunnable, ViewConfiguration.getDoubleTapTimeout());
                         } else {
-                            view.onFingerSingleTap(x, y);
+                            if(mMoveState == isUpOrDownMove_horizontal || mMoveState == isUpOrDownMove_vertical){
+
+                            }else{
+                                view.onFingerSingleTap(x, y);
+                            }
                         }
                     } else {
                         view.onFingerRelease(x, y);
                     }
+                    mMoveState = 0;
                 }
                 myPendingDoubleTap = false;
                 myPendingPress = false;
@@ -464,20 +468,20 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                         mMoveState = isAMove;
                     }
                 }
-
                 if (mMoveState == isUpOrDownMove_horizontal || mMoveState == isUpOrDownMove_vertical) {
                     view.onFingerUp(x, y);
+                    break;
                 }
                 if (mMoveState == isAMove) {
-                    if (isAMove == 3) {
+//                    if (isAMove == 3) {
                         myPendingDoubleTap = false;
-                    }
+//                    }
                     if (myLongClickPerformed) {
                         view.onFingerMoveAfterLongPress(x, y);
                     } else {
                         Log.d("test", "onTouchEvent:   isMove " + isAMove + " is isUpOrDownMove_horizotal " + isUpOrDownMove_horizontal + " isUpOrDownMove_vertical " + isUpOrDownMove_vertical);
                         if (myPendingPress) {
-                            if (isAMove == 3) {
+//                            if (isAMove == 3) {
                                 if (myPendingShortClickRunnable != null) {
                                     removeCallbacks(myPendingShortClickRunnable);
                                     myPendingShortClickRunnable = null;
@@ -487,9 +491,9 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
                                 }
                                 view.onFingerPress(myPressedX, myPressedY);
                                 myPendingPress = false;
-                            }
+//                            }
                         }
-                        if (!myPendingPress && isAMove == 3) {
+                        if (!myPendingPress ) {
                             view.onFingerMove(x, y);
                         }
                     }

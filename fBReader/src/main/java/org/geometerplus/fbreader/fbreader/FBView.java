@@ -137,8 +137,8 @@ public final class FBView extends ZLTextView {
         }
         final ZLTextRegion region = findRegion(x, y, maxSelectionDistance(), ZLTextRegion.AnyRegionFilter);
         if (region != null) {
-//            myReader.runAction(ActionCode.SHOW_TRANSLATE, ((ZLTextWordRegionSoul) region.getSoul()).Word.toString(), (region.getLeft() + region.getRight()) / 2, (region.getTop() + region.getBottom()) / 2);
-            myReader.runAction(ActionCode.SHOW_TRANSLATE, ((ZLTextWordRegionSoul) region.getSoul()).Word.toString(), x,y);
+            myReader.runAction(ActionCode.SHOW_TRANSLATE, ((ZLTextWordRegionSoul) region.getSoul()).Word.toString(), (region.getLeft() + region.getRight()) / 2, (region.getTop() + region.getBottom()) / 2);
+//            myReader.runAction(ActionCode.SHOW_TRANSLATE, ((ZLTextWordRegionSoul) region.getSoul()).Word.toString(), x,y);
             return;
         }
         if (myReader.isActionEnabled(ActionCode.HIDE_TOAST)) {

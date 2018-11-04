@@ -23,14 +23,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.ColorDrawable;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.zlibrary.ui.android.R;
@@ -51,30 +55,47 @@ class TranslateAction extends FBAndroidAction {
     private final static String TAG = "TranslateAction";
     private Activity activity;
     private Dialog dialog;
-    private TextView trans_phonetic, trans_line0, trans_line1, trans_line2, trans_more;
+    private TextView trans_more, trans_none, phonetic_content_en, phonetic_content_us;
+    private ImageView read_en, read_us;
+    private LinearLayout symbolLayout, trans_phonetic;
+    private int screen_height;
 
     TranslateAction(FBReader baseActivity, FBReaderApp fbreader) {
         super(baseActivity, fbreader);
         this.activity = baseActivity;
+        DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
+        screen_height = metrics.heightPixels;
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_translate, null);
         dialog.setContentView(view);
-        trans_phonetic = (TextView) view.findViewById(R.id.trans_phonetic);
-        trans_line0 = (TextView) view.findViewById(R.id.trans_line0);
-        trans_line1 = (TextView) view.findViewById(R.id.trans_line1);
-        trans_line2 = (TextView) view.findViewById(R.id.trans_line2);
+        trans_phonetic = (LinearLayout) view.findViewById(R.id.trans_phonetic_layout);
+        symbolLayout = (LinearLayout) view.findViewById(R.id.symbol_layout);
+        trans_none = (TextView) view.findViewById(R.id.trans_none);
         trans_more = (TextView) view.findViewById(R.id.trans_more);
+
+        phonetic_content_en = (TextView) view.findViewById(R.id.phonetic_content_en);
+        phonetic_content_us = (TextView) view.findViewById(R.id.phonetic_content_us);
+        read_en = (ImageView) view.findViewById(R.id.read_en);
+        read_us = (ImageView) view.findViewById(R.id.read_us);
+        trans_more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+                Toast.makeText(activity, "显示查看更多", Toast.LENGTH_LONG).show();
+            }
+        });
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog1) {
-                trans_line0.setVisibility(View.GONE);
-                trans_line1.setVisibility(View.GONE);
-                trans_line2.setVisibility(View.GONE);
+                symbolLayout.setVisibility(View.GONE);
+                trans_phonetic.setVisibility(View.GONE);
+                trans_none.setVisibility(View.GONE);
                 trans_more.setVisibility(View.GONE);
-//                Window window = dialog.getWindow();
-//                window.setAttributes(null);
+                symbolLayout.removeAllViews();
             }
         });
 
@@ -115,22 +136,61 @@ class TranslateAction extends FBAndroidAction {
             public void onResponse(Call<CiBaWordBeanJson> call, Response<CiBaWordBeanJson> response) {
                 CiBaWordBeanJson ciBaWordBeanJson = response.body();
                 if (ciBaWordBeanJson != null) {
-                    CiBaWordBeanJson.ExchangeBean exchangeBean = ciBaWordBeanJson.getExchange();
-                    int str = ciBaWordBeanJson.getIs_CRI();
-                    List<CiBaWordBeanJson.SymbolsBean> list = ciBaWordBeanJson.getSymbols();
-                    String wordname = ciBaWordBeanJson.getWord_name();
-                    trans_line0.setText(wordname);
-                    trans_line0.setVisibility(View.VISIBLE);
+                    List<CiBaWordBeanJson.SymbolsBean> symbols = ciBaWordBeanJson.getSymbols();
+
+//                    for(int i = 0;i<symbols.size();i++){
+//
+//
+//                    }
+                    CiBaWordBeanJson.SymbolsBean symbolsBean = symbols.get(0);
+                    if (symbolsBean == null) {
+                        trans_none.setVisibility(View.VISIBLE);
+                    } else {
+
+                        String wordname = ciBaWordBeanJson.getWord_name();
+
+                        // add phonetic
+                        String enPhonetic = symbolsBean.getPh_en();
+                        String usPhonetic = symbolsBean.getPh_am();
+                        String enPhonetic_mp3 = symbolsBean.getPh_en_mp3();
+                        String usPhonetic_mp3 = symbolsBean.getPh_am_mp3();
+                        phonetic_content_en.setText("[" + enPhonetic + "]");
+                        phonetic_content_us.setText("[" + usPhonetic + "]");
+                        read_en.setTag(enPhonetic_mp3);
+                        read_us.setTag(usPhonetic_mp3);
+                        // add symbol
+                        TextView textView = (TextView) LayoutInflater.from(activity).inflate(R.layout.dialog_symbol, null);
+                        StringBuilder builder = new StringBuilder();
+                        List<CiBaWordBeanJson.SymbolsBean.PartsBean> parts = symbolsBean.getParts();
+                        for (int i = 0; i < parts.size(); i++) {
+                            CiBaWordBeanJson.SymbolsBean.PartsBean partsBean = parts.get(i);
+                            builder.append(partsBean.getPart()).append("&#160;").append(getTransChinese(builder, partsBean.getMeans())).append('\r');
+                        }
+                        textView.setText(builder.toString());
+                        trans_phonetic.addView(textView);
+                        trans_more.setVisibility(View.VISIBLE);
+                    }
+                    // display more
+                    // if(none ) display none
+
+
                     int x = (int) params[1];
                     int y = (int) params[2];
                     if ((x + y) > 0) {
                         Window window = dialog.getWindow();
+                        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
                         WindowManager.LayoutParams wlp = window.getAttributes();
-                        if (wlp != null) {
-                            wlp.x = x;
+                        wlp.gravity = Gravity.TOP | Gravity.START;
+                        int dialogH = window.getDecorView().getHeight();
+                        int last_distance = screen_height - y;
+                        if (dialogH < last_distance) {
                             wlp.y = y;
-                            todo 位置显示有问题
+                            // todo arrow 朝上
+                        } else {
+                            wlp.y = y - 20;
+                            // todo arrow 在下面朝下
                         }
+                        wlp.x = 0;
                         window.setAttributes(wlp);
                     }
                     dialog.show();
@@ -147,5 +207,16 @@ class TranslateAction extends FBAndroidAction {
         });
 
 
+    }
+
+    private String getTransChinese(StringBuilder builder, List<String> means) {
+        for (int i = 0; i < means.size(); i++) {
+            String mean = means.get(i);
+            builder.append(mean);
+            if (i != means.size() - 1) {
+                builder.append(";");
+            }
+        }
+        return " ";
     }
 }

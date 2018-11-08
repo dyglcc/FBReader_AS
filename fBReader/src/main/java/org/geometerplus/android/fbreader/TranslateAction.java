@@ -23,6 +23,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -41,7 +44,10 @@ import org.geometerplus.zlibrary.ui.android.R;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import dyg.activity.TransWebViewActivity;
 import dyg.beans.CiBaWordBeanJson;
 import dyg.beans.GsonBuildList;
 import dyg.net.LoveFamousBookNet;
@@ -59,6 +65,9 @@ class TranslateAction extends FBAndroidAction {
     private ImageView read_en, read_us;
     private LinearLayout symbolLayout, trans_phonetic;
     private int screen_height;
+    private Pattern pattern = Pattern.compile("[a-z]+");
+    private SoundPool soundPool;
+
 
     TranslateAction(FBReader baseActivity, FBReaderApp fbreader) {
         super(baseActivity, fbreader);
@@ -79,13 +88,32 @@ class TranslateAction extends FBAndroidAction {
         phonetic_content_us = (TextView) view.findViewById(R.id.phonetic_content_us);
         read_en = (ImageView) view.findViewById(R.id.read_en);
         read_us = (ImageView) view.findViewById(R.id.read_us);
+        read_en.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prounce(read_en.getTag());
+            }
+        });
+        read_us.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prounce(read_us.getTag());
+            }
+        });
         trans_more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                Toast.makeText(activity, "显示查看更多", Toast.LENGTH_LONG).show();
+                String string = (String) trans_more.getTag();
+                if (string == null) {
+                    return;
+                }
+                Intent intent = new Intent(activity, TransWebViewActivity.class);
+                intent.putExtra("key", string);
+                activity.startActivity(intent);
+//                Toast.makeText(activity, "显示查看更多", Toast.LENGTH_LONG).show();
             }
         });
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -95,10 +123,22 @@ class TranslateAction extends FBAndroidAction {
                 trans_phonetic.setVisibility(View.GONE);
                 trans_none.setVisibility(View.GONE);
                 trans_more.setVisibility(View.GONE);
+                trans_more.setTag(null);
                 symbolLayout.removeAllViews();
             }
         });
+        soundPool = new SoundPool(10, AudioManager.STREAM_RING,100);
 
+    }
+
+    private void prounce(Object tag) {
+        if(tag == null){
+            Toast.makeText(activity,"sorry! no word to read",Toast.LENGTH_LONG);
+            return;
+        }
+
+        Retrofit retrofit = new Retrofit.Builder().baseUrl((String)tag).build();
+//        retrofit.
 
     }
 
@@ -120,6 +160,13 @@ class TranslateAction extends FBAndroidAction {
             Log.i(TAG, "run: TranslateAction translate key  is empty return");
             return;
         }
+        Matcher matcher = pattern.matcher(key);
+        if (matcher.find()) {
+            key = matcher.toMatchResult().group();
+        } else {
+            Log.i(TAG, "run: TranslateAction translate key  is empty return");
+            return;
+        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://dict-co.iciba.com/")
@@ -137,18 +184,13 @@ class TranslateAction extends FBAndroidAction {
                 CiBaWordBeanJson ciBaWordBeanJson = response.body();
                 if (ciBaWordBeanJson != null) {
                     List<CiBaWordBeanJson.SymbolsBean> symbols = ciBaWordBeanJson.getSymbols();
-
-//                    for(int i = 0;i<symbols.size();i++){
-//
-//
-//                    }
                     CiBaWordBeanJson.SymbolsBean symbolsBean = symbols.get(0);
                     if (symbolsBean == null) {
                         trans_none.setVisibility(View.VISIBLE);
                     } else {
-
-                        String wordname = ciBaWordBeanJson.getWord_name();
-
+                        String word_name = ciBaWordBeanJson.getWord_name();
+                        trans_none.setVisibility(View.GONE);
+                        trans_more.setTag(word_name);
                         // add phonetic
                         String enPhonetic = symbolsBean.getPh_en();
                         String usPhonetic = symbolsBean.getPh_am();
@@ -164,10 +206,12 @@ class TranslateAction extends FBAndroidAction {
                         List<CiBaWordBeanJson.SymbolsBean.PartsBean> parts = symbolsBean.getParts();
                         for (int i = 0; i < parts.size(); i++) {
                             CiBaWordBeanJson.SymbolsBean.PartsBean partsBean = parts.get(i);
-                            builder.append(partsBean.getPart()).append("&#160;").append(getTransChinese(builder, partsBean.getMeans())).append('\r');
+                            builder.append(partsBean.getPart()).append("    ").append(getTransChinese(builder, partsBean.getMeans())).append('\n');
                         }
                         textView.setText(builder.toString());
-                        trans_phonetic.addView(textView);
+                        symbolLayout.addView(textView);
+                        trans_phonetic.setVisibility(View.VISIBLE);
+                        symbolLayout.setVisibility(View.VISIBLE);
                         trans_more.setVisibility(View.VISIBLE);
                     }
                     // display more

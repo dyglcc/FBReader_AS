@@ -57,7 +57,6 @@ public class CiBaWordBeanJson {
     public void setItems(List<String> items) {
         this.items = items;
     }
-
     public static class ExchangeBean {
         /**
          * word_pl : ["hellos"]

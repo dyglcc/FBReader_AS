@@ -2,19 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     android:orientation="vertical">
 
 
     <LinearLayout
         android:id="@+id/trans_phonetic_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/pronunciation_en"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="英"
             android:textColor="@color/white"
@@ -22,21 +24,25 @@
 
         <TextView
             android:id="@+id/phonetic_content_en"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
+            android:layout_marginLeft="5dp"
             android:textSize="16dp" />
 
         <ImageView
             android:id="@+id/read_en"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="10dp"
             android:src="@drawable/drag_icon" />
 
 
         <TextView
             android:id="@+id/pronunciation_us"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="美"
             android:textColor="@color/white"
@@ -44,8 +50,9 @@
 
         <TextView
             android:id="@+id/phonetic_content_us"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
             android:textColor="@color/white"
             android:textSize="16dp" />
 
@@ -53,6 +60,9 @@
             android:id="@+id/read_us"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
             android:src="@drawable/drag_icon" />
 
     </LinearLayout>

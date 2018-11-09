@@ -24,8 +24,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -39,9 +41,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.translate.demo.MD5;
+
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.zlibrary.ui.android.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -51,6 +60,8 @@ import dyg.activity.TransWebViewActivity;
 import dyg.beans.CiBaWordBeanJson;
 import dyg.beans.GsonBuildList;
 import dyg.net.LoveFamousBookNet;
+import dyg.net.LoveFamousMp3FileDownload;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,7 +77,7 @@ class TranslateAction extends FBAndroidAction {
     private LinearLayout symbolLayout, trans_phonetic;
     private int screen_height;
     private Pattern pattern = Pattern.compile("[a-z]+");
-    private SoundPool soundPool;
+    private SoundPool mSoundPool;
 
 
     TranslateAction(FBReader baseActivity, FBReaderApp fbreader) {
@@ -127,17 +138,46 @@ class TranslateAction extends FBAndroidAction {
                 symbolLayout.removeAllViews();
             }
         });
-        soundPool = new SoundPool(10, AudioManager.STREAM_RING,100);
-
+        init();
     }
 
-    private void prounce(Object tag) {
+    private void prounce(final Object tag) {
         if(tag == null){
             Toast.makeText(activity,"sorry! no word to read",Toast.LENGTH_LONG);
             return;
         }
 
-        Retrofit retrofit = new Retrofit.Builder().baseUrl((String)tag).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://yy.cc").build();
+        LoveFamousMp3FileDownload fileDownload = retrofit.create(LoveFamousMp3FileDownload.class);
+        Call<ResponseBody> call =  fileDownload.downloadMp3((String)tag);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    ResponseBody body = response.body();
+                   File file=  writeResponseBodyToDisk(body,(String)tag);
+                   if(file !=null){
+                       final int id = mSoundPool.load(file.getAbsolutePath(),1);
+                       mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+                           @Override
+                           public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                               mSoundPool.play(id, 1.0f, 1.0f, 1, 0, 1.0f);
+                           }
+                       });
+
+                   }
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("请求失败");
+                System.out.println(t.getMessage());
+                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage()).create().show();
+            }
+        });
 //        retrofit.
 
     }
@@ -214,10 +254,6 @@ class TranslateAction extends FBAndroidAction {
                         symbolLayout.setVisibility(View.VISIBLE);
                         trans_more.setVisibility(View.VISIBLE);
                     }
-                    // display more
-                    // if(none ) display none
-
-
                     int x = (int) params[1];
                     int y = (int) params[2];
                     if ((x + y) > 0) {
@@ -246,7 +282,7 @@ class TranslateAction extends FBAndroidAction {
             public void onFailure(Call<CiBaWordBeanJson> call, Throwable t) {
                 System.out.println("请求失败");
                 System.out.println(t.getMessage());
-                new AlertDialog.Builder(activity).setTitle("enen").setMessage(t.getMessage()).create().show();
+                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage()).create().show();
             }
         });
 
@@ -263,4 +299,78 @@ class TranslateAction extends FBAndroidAction {
         }
         return " ";
     }
+
+    private void init(){
+        if (Build.VERSION.SDK_INT >= 21) {
+            //SDK_INT >= 21时，才能使用SoundPool.Builder创建SoundPool
+            SoundPool.Builder builder = new SoundPool.Builder();
+
+            //可同时播放的音频流
+            builder.setMaxStreams(5);
+
+            //音频属性的Builder
+            AudioAttributes.Builder attrBuild = new AudioAttributes.Builder();
+
+            //音频类型
+            attrBuild.setLegacyStreamType(AudioManager.STREAM_MUSIC);
+
+            builder.setAudioAttributes(attrBuild.build());
+
+            mSoundPool = builder.build();
+        } else {
+            //低版本的构造方法，已经deprecated了
+            mSoundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        }
+    }
+    private File writeResponseBodyToDisk(ResponseBody body,String url) {
+        try {
+            String filename = MD5.md5(url);
+            // todo change the file location/name according to your needs
+            File futureStudioIconFile = new File(activity.getCacheDir() + File.separator + filename);
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                outputStream = new FileOutputStream(futureStudioIconFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();
+
+                return futureStudioIconFile;
+            } catch (IOException e) {
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
 }

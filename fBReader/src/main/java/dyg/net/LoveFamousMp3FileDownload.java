@@ -1,13 +1,11 @@
 package dyg.net;
 
-import java.util.HashMap;
-
-import dyg.beans.CiBaWordBeanJson;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.QueryMap;
+import retrofit2.http.Url;
 
 public interface LoveFamousMp3FileDownload {
-    @GET("/api/dictionary.php")
-    Call<CiBaWordBeanJson> getWords(@QueryMap HashMap<String, String> map);
+    @GET
+    Call<ResponseBody> downloadMp3(@Url String url);
 }

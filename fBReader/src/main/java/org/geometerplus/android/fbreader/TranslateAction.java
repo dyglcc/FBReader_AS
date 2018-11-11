@@ -96,7 +96,20 @@ class TranslateAction extends FBAndroidAction {
         trans_more = (TextView) view.findViewById(R.id.trans_more);
 
         phonetic_content_en = (TextView) view.findViewById(R.id.phonetic_content_en);
+        phonetic_content_en.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prounce(read_en.getTag());
+            }
+        });
+
         phonetic_content_us = (TextView) view.findViewById(R.id.phonetic_content_us);
+        phonetic_content_us.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prounce(read_us.getTag());
+            }
+        });
         read_en = (ImageView) view.findViewById(R.id.read_en);
         read_us = (ImageView) view.findViewById(R.id.read_us);
         read_en.setOnClickListener(new View.OnClickListener() {
@@ -142,30 +155,37 @@ class TranslateAction extends FBAndroidAction {
     }
 
     private void prounce(final Object tag) {
-        if(tag == null){
-            Toast.makeText(activity,"sorry! no word to read",Toast.LENGTH_LONG);
+        if (tag == null) {
+            Toast.makeText(activity, "sorry! no word to read", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (tag.toString().equals("")) {
+            Log.e(TAG, "sorry! no word to read");
+            Toast.makeText(activity, "sorry! no word to read", Toast.LENGTH_LONG).show();
             return;
         }
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://yy.cc").build();
         LoveFamousMp3FileDownload fileDownload = retrofit.create(LoveFamousMp3FileDownload.class);
-        Call<ResponseBody> call =  fileDownload.downloadMp3((String)tag);
+        Call<ResponseBody> call = fileDownload.downloadMp3((String) tag);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     ResponseBody body = response.body();
-                   File file=  writeResponseBodyToDisk(body,(String)tag);
-                   if(file !=null){
-                       final int id = mSoundPool.load(file.getAbsolutePath(),1);
-                       mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-                           @Override
-                           public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                               mSoundPool.play(id, 1.0f, 1.0f, 1, 0, 1.0f);
-                           }
-                       });
+                    File file = writeResponseBodyToDisk(body, (String) tag);
+                    if (file != null) {
+                        final int id = mSoundPool.load(file.getAbsolutePath(), 1);
+                        mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener
+                                () {
+                            @Override
+                            public void onLoadComplete(SoundPool soundPool, int sampleId, int
+                                    status) {
+                                mSoundPool.play(id, 1.0f, 1.0f, 1, 0, 1.0f);
+                            }
+                        });
 
-                   }
+                    }
 
                 }
 
@@ -175,7 +195,9 @@ class TranslateAction extends FBAndroidAction {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.println("请求失败");
                 System.out.println(t.getMessage());
-                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage()).create().show();
+                Toast.makeText(activity, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage())
+// .create().show();
             }
         });
 //        retrofit.
@@ -220,7 +242,8 @@ class TranslateAction extends FBAndroidAction {
         Call<CiBaWordBeanJson> res = lbn.getWords(map);
         res.enqueue(new Callback<CiBaWordBeanJson>() {
             @Override
-            public void onResponse(Call<CiBaWordBeanJson> call, Response<CiBaWordBeanJson> response) {
+            public void onResponse(Call<CiBaWordBeanJson> call, Response<CiBaWordBeanJson>
+                    response) {
                 CiBaWordBeanJson ciBaWordBeanJson = response.body();
                 if (ciBaWordBeanJson != null) {
                     List<CiBaWordBeanJson.SymbolsBean> symbols = ciBaWordBeanJson.getSymbols();
@@ -236,17 +259,34 @@ class TranslateAction extends FBAndroidAction {
                         String usPhonetic = symbolsBean.getPh_am();
                         String enPhonetic_mp3 = symbolsBean.getPh_en_mp3();
                         String usPhonetic_mp3 = symbolsBean.getPh_am_mp3();
+                        String tts_mp3 = symbolsBean.getPh_tts_mp3();
+                        if (TextUtils.isEmpty(enPhonetic_mp3)) {
+                            if (!TextUtils.isEmpty(tts_mp3)) {
+                                enPhonetic_mp3 = tts_mp3;
+                            } else if (!TextUtils.isEmpty(usPhonetic_mp3)) {
+                                enPhonetic = usPhonetic_mp3;
+                            }
+                        }
+                        if (TextUtils.isEmpty(usPhonetic_mp3)) {
+                            if (!TextUtils.isEmpty(tts_mp3)) {
+                                usPhonetic_mp3 = tts_mp3;
+                            } else if (!TextUtils.isEmpty(enPhonetic_mp3)) {
+                                usPhonetic_mp3 = enPhonetic_mp3;
+                            }
+                        }
                         phonetic_content_en.setText("[" + enPhonetic + "]");
                         phonetic_content_us.setText("[" + usPhonetic + "]");
                         read_en.setTag(enPhonetic_mp3);
                         read_us.setTag(usPhonetic_mp3);
                         // add symbol
-                        TextView textView = (TextView) LayoutInflater.from(activity).inflate(R.layout.dialog_symbol, null);
+                        TextView textView = (TextView) LayoutInflater.from(activity).inflate(R
+                                .layout.dialog_symbol, null);
                         StringBuilder builder = new StringBuilder();
                         List<CiBaWordBeanJson.SymbolsBean.PartsBean> parts = symbolsBean.getParts();
                         for (int i = 0; i < parts.size(); i++) {
                             CiBaWordBeanJson.SymbolsBean.PartsBean partsBean = parts.get(i);
-                            builder.append(partsBean.getPart()).append("    ").append(getTransChinese(builder, partsBean.getMeans())).append('\n');
+                            builder.append(partsBean.getPart()).append("    ").append
+                                    (getTransChinese(builder, partsBean.getMeans())).append('\n');
                         }
                         textView.setText(builder.toString());
                         symbolLayout.addView(textView);
@@ -258,7 +298,8 @@ class TranslateAction extends FBAndroidAction {
                     int y = (int) params[2];
                     if ((x + y) > 0) {
                         Window window = dialog.getWindow();
-                        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager
+                                .LayoutParams.WRAP_CONTENT);
                         WindowManager.LayoutParams wlp = window.getAttributes();
                         wlp.gravity = Gravity.TOP | Gravity.START;
                         int dialogH = window.getDecorView().getHeight();
@@ -282,7 +323,8 @@ class TranslateAction extends FBAndroidAction {
             public void onFailure(Call<CiBaWordBeanJson> call, Throwable t) {
                 System.out.println("请求失败");
                 System.out.println(t.getMessage());
-                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage()).create().show();
+                new AlertDialog.Builder(activity).setTitle("error").setMessage(t.getMessage())
+                        .create().show();
             }
         });
 
@@ -300,7 +342,7 @@ class TranslateAction extends FBAndroidAction {
         return " ";
     }
 
-    private void init(){
+    private void init() {
         if (Build.VERSION.SDK_INT >= 21) {
             //SDK_INT >= 21时，才能使用SoundPool.Builder创建SoundPool
             SoundPool.Builder builder = new SoundPool.Builder();
@@ -322,11 +364,13 @@ class TranslateAction extends FBAndroidAction {
             mSoundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         }
     }
-    private File writeResponseBodyToDisk(ResponseBody body,String url) {
+
+    private File writeResponseBodyToDisk(ResponseBody body, String url) {
         try {
             String filename = MD5.md5(url);
             // todo change the file location/name according to your needs
-            File futureStudioIconFile = new File(activity.getCacheDir() + File.separator + filename);
+            File futureStudioIconFile = new File(activity.getCacheDir() + File.separator +
+                    filename);
 
             InputStream inputStream = null;
             OutputStream outputStream = null;

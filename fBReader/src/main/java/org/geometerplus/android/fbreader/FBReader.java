@@ -19,6 +19,7 @@
 
 package org.geometerplus.android.fbreader;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -31,6 +32,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,9 +92,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow {
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow , EasyPermissions.PermissionCallbacks{
+    private static final String TAG = "FBReader";
     public static final int RESULT_DO_NOTHING = RESULT_FIRST_USER;
     public static final int RESULT_REPAINT = RESULT_FIRST_USER + 1;
+    private static final int RC_CAMERA_AND_LOCATION = 110;
 
     public static Intent defaultIntent(Context context) {
         return new Intent(context, FBReader.class)
@@ -220,11 +228,22 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             }
         };
     }
-
+    @AfterPermissionGranted(RC_CAMERA_AND_LOCATION)
+    private void methodRequiresTwoPermission() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            // Already have permission, do the thing
+            // ...
+        } else {
+            // Do not have permissions, request them now
+            EasyPermissions.requestPermissions(this, "需要sdcard读写权限",
+                    RC_CAMERA_AND_LOCATION, perms);
+        }
+    }
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
+        methodRequiresTwoPermission();
         bindService(
                 new Intent(this, DataService.class),
                 DataConnection,
@@ -339,19 +358,6 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 });
             }
         }
-
-//        TransUtils.requestNet("good morning", new OnGetResult() {
-//            @Override
-//            public void onGetResult(final String result) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(FBReader.this, result, Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//            }
-//        });
-
     }
 
     @Override
@@ -515,6 +521,16 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 null,
                 null
         );
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Log.i(TAG, "获取权限成功" + perms);
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.i(TAG, "获取权限失败" + perms);
     }
 
     private class TipRunner extends Thread {
@@ -1084,5 +1100,12 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         myFBReaderApp.getTextView().removeHighlightings(DictionaryHighlighting.class);
         myFBReaderApp.getViewWidget().reset();
         myFBReaderApp.getViewWidget().repaint();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 }

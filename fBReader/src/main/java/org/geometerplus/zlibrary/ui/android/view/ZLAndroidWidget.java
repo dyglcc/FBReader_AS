@@ -96,7 +96,7 @@ public class ZLAndroidWidget extends MainView implements ZLViewWidget, View.OnLo
 
     @Override
     protected void onDraw(final Canvas canvas) {
-        final Context context = getContext();
+                    final Context context = getContext();
         if (context instanceof FBReader) {
             ((FBReader) context).createWakeLock();
         } else {

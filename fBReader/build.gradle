@@ -5,7 +5,7 @@ android {
     buildToolsVersion '26.0.2'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
-        applicationId "org.geometerplus.zlibrary.ui.android"
+        applicationId "org.geometerplus.dyg.android"
         minSdkVersion 18
         targetSdkVersion 25
 
@@ -33,9 +33,15 @@ android {
     }
 }
 
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
+}
+
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:support-v4:25.0.1'
+    implementation 'com.android.support:support-v4:25.0.1'
     compile files('libs/LingvoIntegration_2.5.2.12.jar')
     compile files('libs/httpmime-4.2.5.jar')
     compile files('libs/json-simple-1.1.1.jar')
@@ -44,12 +50,13 @@ dependencies {
     compile files('libs/pdfparse.jar')
     implementation project(':ambilWarna')
     implementation project(':code')
+//    compile(name:'abtest-release-190102-01',ext:'aar')
     implementation project(':library')
     implementation project(':superToasts')
     implementation project(':translate_bd')
 //    compile 'com.google.code.gson:gson:2.3.0'
-    compile 'com.squareup.okhttp3:okhttp:3.9.1'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'pub.devrel:easypermissions:0.1.5'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'pub.devrel:easypermissions:0.1.5'
 }

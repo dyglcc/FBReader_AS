@@ -42,9 +42,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.translate.demo.MD5;
+import com.dyg.android.reader.R;
 
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
-import org.geometerplus.zlibrary.ui.android.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

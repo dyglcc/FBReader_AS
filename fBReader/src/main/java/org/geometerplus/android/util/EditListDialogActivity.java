@@ -32,8 +32,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.content.DialogInterface.OnClickListener;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
 
 public abstract class EditListDialogActivity extends ListActivity {
 	public static final int REQ_CODE = 001;

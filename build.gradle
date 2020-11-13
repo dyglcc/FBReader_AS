@@ -6,8 +6,13 @@ buildscript {
             url 'https://maven.google.com/'
             name 'Google'
         }
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+            name 'ali'
+        }
     }
     dependencies {
+        classpath 'com.aliyun.ams:emas-services:1.0.1'
         classpath 'com.android.tools.build:gradle:3.1.3'
     }
 }
@@ -18,6 +23,11 @@ allprojects {
         maven {
             url 'https://maven.google.com/'
             name 'Google'
+        }
+
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+            name 'ali'
         }
     }
 }

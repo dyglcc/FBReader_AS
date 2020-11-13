@@ -24,9 +24,11 @@ import java.util.HashSet;
 import android.view.*;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.tree.ZLTree;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 public abstract class ZLTreeAdapter extends BaseAdapter implements AdapterView.OnItemClickListener, View.OnCreateContextMenuListener {
 	private final ListView myParent;

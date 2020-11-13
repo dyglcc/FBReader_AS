@@ -34,10 +34,11 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
 import com.paragon.open.dictionary.api.*;
 
 import org.geometerplus.zlibrary.core.util.MiscUtil;
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 public class OpenDictionaryActivity extends Activity {
 	public final static String OPEN_DICTIONARY_QUERY_KEY = "open_dictionary_query";

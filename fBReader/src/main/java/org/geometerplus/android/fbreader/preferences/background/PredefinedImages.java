@@ -26,9 +26,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
 
 import org.geometerplus.fbreader.fbreader.WallpapersUtil;
 

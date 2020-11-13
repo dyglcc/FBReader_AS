@@ -30,10 +30,12 @@ import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.book.*;

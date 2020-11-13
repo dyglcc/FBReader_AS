@@ -25,8 +25,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
 
 public abstract class SimpleDialogActivity extends Activity {
 	private TextView myTextView;

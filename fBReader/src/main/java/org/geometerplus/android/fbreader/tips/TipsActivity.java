@@ -25,9 +25,11 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.tips.*;

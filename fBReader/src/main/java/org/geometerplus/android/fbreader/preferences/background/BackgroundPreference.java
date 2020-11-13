@@ -27,11 +27,12 @@ import android.preference.Preference;
 import android.view.View;
 import android.widget.TextView;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.ZLColor;
-import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.util.ZLAndroidColorUtil;
 
 import org.geometerplus.fbreader.fbreader.options.ColorProfile;

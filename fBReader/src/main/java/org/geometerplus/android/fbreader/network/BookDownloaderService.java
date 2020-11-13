@@ -31,6 +31,8 @@ import android.os.Message;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.NotificationUtil;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
@@ -42,7 +44,7 @@ import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 import org.geometerplus.zlibrary.core.network.ZLNetworkRequest;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MimeType;
-import org.geometerplus.zlibrary.ui.android.R;
+
 import org.geometerplus.zlibrary.ui.android.network.SQLiteCookieDatabase;
 
 import java.io.File;

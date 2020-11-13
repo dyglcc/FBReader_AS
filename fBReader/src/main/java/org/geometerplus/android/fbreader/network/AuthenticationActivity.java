@@ -29,6 +29,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Button;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.network.ZLNetworkManager;
 import org.geometerplus.zlibrary.core.network.ZLNetworkException;
@@ -37,7 +39,7 @@ import org.geometerplus.fbreader.network.INetworkLink;
 import org.geometerplus.fbreader.network.NetworkLibrary;
 import org.geometerplus.fbreader.network.authentication.NetworkAuthenticationManager;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.android.util.UIUtil;
 

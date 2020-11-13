@@ -23,9 +23,11 @@ import android.text.Html;
 import android.view.*;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.fbreader.library.*;
 import org.geometerplus.fbreader.book.Book;

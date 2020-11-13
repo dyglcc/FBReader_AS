@@ -33,12 +33,13 @@ import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import yuku.ambilwarna.widget.AmbilWarnaPrefWidgetView;
 
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.ZLColor;
-import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.util.ZLAndroidColorUtil;
 
 import org.geometerplus.fbreader.book.*;

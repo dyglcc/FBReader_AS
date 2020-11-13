@@ -30,9 +30,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
 
 public class StringPreference extends DialogPreference {
 	public static class Constraint {

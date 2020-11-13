@@ -26,10 +26,12 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.network.ZLNetworkAuthenticationException;
 import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.fbreader.network.authentication.litres.*;
 

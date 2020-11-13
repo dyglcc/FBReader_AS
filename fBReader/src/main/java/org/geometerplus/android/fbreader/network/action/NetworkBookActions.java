@@ -28,9 +28,11 @@ import android.net.Uri;
 import android.content.Intent;
 import android.content.DialogInterface;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.android.fbreader.FBReader;
 

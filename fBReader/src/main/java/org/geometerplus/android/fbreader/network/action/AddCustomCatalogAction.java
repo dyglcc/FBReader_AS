@@ -23,13 +23,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.fbreader.network.NetworkTree;
 import org.geometerplus.fbreader.network.tree.RootTree;
 import org.geometerplus.fbreader.network.tree.AddCustomCatalogItemTree;
 
 import org.geometerplus.android.fbreader.network.AddCatalogMenuActivity;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 public class AddCustomCatalogAction extends Action {
 	public AddCustomCatalogAction(Activity activity) {

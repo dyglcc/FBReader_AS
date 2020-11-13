@@ -29,9 +29,11 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 public class ServiceNetworkContext extends AndroidNetworkContext {
 	private final Service myService;

@@ -28,8 +28,9 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.ui.android.R;
 
 public class FolderListDialogActivity extends ListActivity {
 	interface Key {

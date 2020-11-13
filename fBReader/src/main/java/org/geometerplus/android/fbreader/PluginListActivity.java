@@ -34,10 +34,11 @@ import android.os.Bundle;
 import android.widget.*;
 import android.view.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.XmlUtil;
-import org.geometerplus.zlibrary.ui.android.R;
 
 import org.geometerplus.android.util.PackageUtil;
 import org.geometerplus.android.util.ViewUtil;

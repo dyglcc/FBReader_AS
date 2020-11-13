@@ -7,7 +7,8 @@ import android.support.annotation.Nullable;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import org.geometerplus.zlibrary.ui.android.R;
+import com.dyg.android.reader.R;
+
 
 public class TransWebViewActivity extends Activity {
     @Override

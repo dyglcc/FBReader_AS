@@ -25,13 +25,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
 
+import com.dyg.android.reader.R;
+
 import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
 import org.geometerplus.fbreader.Paths;
 
-import org.geometerplus.zlibrary.ui.android.R;
+
 
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.util.FileChooserUtil;

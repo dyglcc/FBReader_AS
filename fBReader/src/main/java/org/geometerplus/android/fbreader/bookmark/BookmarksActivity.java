@@ -77,7 +77,7 @@ public class BookmarksActivity extends Activity implements IBookCollection.Liste
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 
-		Thread.setDefaultUncaughtExceptionHandler(new org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler(this));
+//		Thread.setDefaultUncaughtExceptionHandler(new org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler(this));
 		setContentView(R.layout.bookmarks);
 
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);

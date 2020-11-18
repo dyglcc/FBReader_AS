@@ -19,11 +19,12 @@
 
 package org.geometerplus.fbreader.book;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.fbreader.util.ComparisonUtil;
 
-public final class SeriesInfo implements Comparable<SeriesInfo> {
+public final class SeriesInfo implements Comparable<SeriesInfo>, Serializable {
 	public static SeriesInfo createSeriesInfo(String title, String index) {
 		if (title == null) {
 			return null;

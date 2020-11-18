@@ -19,10 +19,14 @@
 
 package org.geometerplus.fbreader.fbreader;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.util.*;
 
 import org.fbreader.util.ComparisonUtil;
 
+import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.zlibrary.core.application.*;
 import org.geometerplus.zlibrary.core.drm.FileEncryptionInfo;
 import org.geometerplus.zlibrary.core.drm.EncryptionMethod;
@@ -40,6 +44,8 @@ import org.geometerplus.fbreader.network.sync.SyncData;
 import org.geometerplus.fbreader.util.*;
 
 public final class FBReaderApp extends ZLApplication {
+	private static final String TAG = "FBReaderApp";
+
 	public interface ExternalFileOpener {
 		public void openFile(ExternalFormatPlugin plugin, Book book, Bookmark bookmark);
 	}
@@ -176,6 +182,7 @@ public final class FBReaderApp extends ZLApplication {
 				book = Collection.getBookByFile(BookUtil.getHelpFile().getPath());
 			}
 			if (book == null) {
+				Log.e(TAG, "openBook:  no book return ");
 				return;
 			}
 		}

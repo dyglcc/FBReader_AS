@@ -24,7 +24,7 @@ import android.content.Intent;
 import org.geometerplus.fbreader.book.*;
 
 public abstract class FBReaderIntents {
-	public static final String DEFAULT_PACKAGE = "org.geometerplus.zlibrary.ui.android";
+	public static final String DEFAULT_PACKAGE = "com.dyg.android.reader";
 
 	public interface Action {
 		String API                              = "android.fbreader.action.API";
@@ -90,7 +90,8 @@ public abstract class FBReaderIntents {
 	}
 
 	public static void putBookExtra(Intent intent, Book book) {
-		putBookExtra(intent, Key.BOOK, book);
+//		putBookExtra(intent, Key.BOOK, book);
+		intent.putExtra(Key.BOOK,book);
 	}
 
 	public static <B extends AbstractBook> B getBookExtra(Intent intent, String key, AbstractSerializer.BookCreator<B> creator) {
@@ -98,7 +99,8 @@ public abstract class FBReaderIntents {
 	}
 
 	public static <B extends AbstractBook> B getBookExtra(Intent intent, AbstractSerializer.BookCreator<B> creator) {
-		return getBookExtra(intent, Key.BOOK, creator);
+//		return getBookExtra(intent, Key.BOOK, creator);
+		return (B) intent.getSerializableExtra(Key.BOOK);
 	}
 
 	public static void putBookmarkExtra(Intent intent, String key, Bookmark bookmark) {

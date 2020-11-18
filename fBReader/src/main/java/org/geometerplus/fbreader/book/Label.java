@@ -19,9 +19,10 @@
 
 package org.geometerplus.fbreader.book;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Label {
+public class Label implements Serializable {
 	public final String Uid;
 	public final String Name;
 

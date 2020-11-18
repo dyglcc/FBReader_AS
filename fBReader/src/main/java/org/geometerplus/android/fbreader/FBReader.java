@@ -19,7 +19,6 @@
 
 package org.geometerplus.android.fbreader;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -28,9 +27,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -41,6 +44,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import com.alibaba.sdk.android.man.MANHitBuilders;
+import com.alibaba.sdk.android.man.MANService;
+import com.alibaba.sdk.android.man.MANServiceProvider;
 import com.dyg.android.reader.R;
 
 import org.geometerplus.android.fbreader.api.ApiListener;
@@ -93,14 +99,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow , EasyPermissions.PermissionCallbacks{
+public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow {
     private static final String TAG = "FBReader";
+    private static final String TAG1 = "bindService";
     public static final int RESULT_DO_NOTHING = RESULT_FIRST_USER;
     public static final int RESULT_REPAINT = RESULT_FIRST_USER + 1;
-    private static final int RC_CAMERA_AND_LOCATION = 110;
 
     public static Intent defaultIntent(Context context) {
         return new Intent(context, FBReader.class)
@@ -110,6 +115,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
 
     public static void openBookActivity(Context context, Book book, Bookmark bookmark) {
         final Intent intent = defaultIntent(context);
+
         FBReaderIntents.putBookExtra(intent, book);
         FBReaderIntents.putBookmarkExtra(intent, bookmark);
         context.startActivity(intent);
@@ -229,22 +235,11 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             }
         };
     }
-    @AfterPermissionGranted(RC_CAMERA_AND_LOCATION)
-    private void methodRequiresTwoPermission() {
-        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if (EasyPermissions.hasPermissions(this, perms)) {
-            // Already have permission, do the thing
-            // ...
-        } else {
-            // Do not have permissions, request them now
-            EasyPermissions.requestPermissions(this, "需要sdcard读写权限",
-                    RC_CAMERA_AND_LOCATION, perms);
-        }
-    }
+
+
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        methodRequiresTwoPermission();
         bindService(
                 new Intent(this, DataService.class),
                 DataConnection,
@@ -354,6 +349,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 myOpenBookIntent = null;
                 getCollection().bindToService(this, new Runnable() {
                     public void run() {
+                        Log.e(TAG1, "onCreate: " + "348");
                         myFBReaderApp.openBook(null, null, null, myNotifier);
                     }
                 });
@@ -444,6 +440,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             myOpenBookIntent = null;
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: " + "440");
                     final BookCollectionShadow collection = getCollection();
                     Book b = collection.getRecentBook(0);
                     if (collection.sameBook(b, book)) {
@@ -460,9 +457,32 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
     @Override
     protected void onStart() {
         super.onStart();
+        try {
+// add ali man
+            MANHitBuilders.MANCustomHitBuilder hitBuilder = new MANHitBuilders.MANCustomHitBuilder("playmusic");
+// 可使用如下接口设置时长：3分钟
+            hitBuilder.setDurationOnEvent(3 * 60 * 1000);
+// 设置关联的页面名称：聆听
+            hitBuilder.setEventPage("Listen");
+// 设置属性：类型摇滚
+            hitBuilder.setProperty("type", "rock");
+// 设置属性：歌曲标题
+            hitBuilder.setProperty("title", "wonderful tonight");
+// 发送自定义事件打点
+            MANService manService = MANServiceProvider.getService();
+            manService.getMANAnalytics().getDefaultTracker().send(hitBuilder.build());
 
-        getCollection().bindToService(this, new Runnable() {
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // man --end
+
+        getCollection().bindToService(this, null);
+
+        Config.Instance().runOnConnect(new Runnable() {
             public void run() {
+                Log.e(TAG1, "onCreate: " + "475");
                 new Thread() {
                     public void run() {
                         getPostponedInitAction().run();
@@ -524,16 +544,6 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         );
     }
 
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        Log.i(TAG, "获取权限成功" + perms);
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Log.i(TAG, "获取权限失败" + perms);
-    }
-
     private class TipRunner extends Thread {
         TipRunner() {
             setPriority(MIN_PRIORITY);
@@ -583,6 +593,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
 
                 getCollection().bindToService(FBReader.this, new Runnable() {
                     public void run() {
+                        Log.e(TAG1, "run: bindService" );
                         final BookModel model = myFBReaderApp.Model;
                         if (model == null || model.Book == null) {
                             return;
@@ -610,6 +621,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             myCancelIntent = null;
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: 622");
                     runCancelAction(intent);
                 }
             });
@@ -619,24 +631,28 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
             myOpenBookIntent = null;
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: 633");
                     openBook(intent, null, true);
                 }
             });
         } else if (myFBReaderApp.getCurrentServerBook(null) != null) {
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: 640");
                     myFBReaderApp.useSyncInfo(true, myNotifier);
                 }
             });
         } else if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: 647");
                     myFBReaderApp.openBook(myFBReaderApp.ExternalBook, null, null, myNotifier);
                 }
             });
         } else {
             getCollection().bindToService(this, new Runnable() {
                 public void run() {
+                    Log.e(TAG1, "onCreate: 653");
                     myFBReaderApp.useSyncInfo(true, myNotifier);
                 }
             });
@@ -752,6 +768,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                     if (book != null) {
                         getCollection().bindToService(this, new Runnable() {
                             public void run() {
+                                Log.e(TAG1, "onCreate: 769");
                                 onPreferencesUpdate(book);
                             }
                         });
@@ -870,6 +887,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         final BookCollectionShadow collection = getCollection();
         collection.bindToService(this, new Runnable() {
             public void run() {
+                Log.e(TAG1, "onCreate: 889");
                 final Book recent = collection.getRecentBook(0);
                 if (recent != null && !collection.sameBook(recent, book)) {
                     myFBReaderApp.openBook(recent, null, null, null);

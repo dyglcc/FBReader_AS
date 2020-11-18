@@ -23,7 +23,9 @@ import java.util.*;
 
 import android.app.Service;
 import android.content.*;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import org.geometerplus.zlibrary.core.options.Config;
@@ -34,6 +36,7 @@ public final class ConfigShadow extends Config implements ServiceConnection {
 	private final Context myContext;
 	private volatile ConfigInterface myInterface;
 	private final List<Runnable> myDeferredActions = new LinkedList<Runnable>();
+	private Handler handler = new Handler(Looper.getMainLooper());
 
 	private final BroadcastReceiver myReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
@@ -65,12 +68,15 @@ public final class ConfigShadow extends Config implements ServiceConnection {
 
 	@Override
 	public void runOnConnect(Runnable runnable) {
-		if (myInterface != null) {
-			runnable.run();
-		} else {
-			synchronized (myDeferredActions) {
-				myDeferredActions.add(runnable);
-			}
+//		if (myInterface != null) {
+//			runnable.run();
+//		} else {
+//			synchronized (myDeferredActions) {
+//				myDeferredActions.add(runnable);
+//			}
+//		}
+		if(myInterface!=null){
+			handler.post(runnable);
 		}
 	}
 

@@ -50,4 +50,104 @@
 
 -dontwarn com.tencent.bugly.**
 -keep public class com.tencent.bugly.**{*;}
+
 -keep class android.support.**{*;}
+-dontwarn com.squareup.okhttp3.**
+-keep class com.squareup.okhttp3.** { *; }
+-keep interface com.squareup.okhttp3.** { *; }
+
+-dontwarn okhttp3.internal.platform.*
+-dontwarn com.taobao.tlog.*
+
+-dontwarn okio.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+
+-dontwarn com.alibaba.**
+-dontwarn retrofit2.*
+-dontwarn anet.channel.**
+-dontwarn com.taobao.**
+-dontwarn com.aliyun.**
+
+
+#httpdns
+-keep class com.taobao.** {*;}
+-keep class com.alibaba.** {*;}
+-keep class com.ta.**{*;}
+-keep class com.ut.**{*;}
+-dontwarn com.taobao.**
+-dontwarn com.alibaba.**
+-dontwarn com.ta.**
+-dontwarn com.ut.**
+
+#cps
+-keep class com.taobao.** {*;}
+-keep class com.alibaba.** {*;}
+-keep class com.ta.**{*;}
+-keep class com.ut.**{*;}
+-dontwarn com.taobao.**
+-dontwarn com.alibaba.**
+-dontwarn com.ta.**
+-dontwarn com.ut.**
+-keepclasseswithmembernames class ** {
+native <methods>;
+}
+-keepattributes Signature
+-keep class sun.misc.Unsafe { *; }
+-keep class com.alipay.** {*;}
+-dontwarn com.alipay.**
+-keep class anet.**{*;}
+-keep class org.android.spdy.**{*;}
+-keep class org.android.agoo.**{*;}
+-dontwarn anet.**
+-dontwarn org.android.spdy.**
+-dontwarn org.android.agoo.**
+
+#hotfix
+#基线包使用，生成mapping.txt
+-printmapping mapping.txt
+#生成的mapping.txt在app/buidl/outputs/mapping/release路径下，移动到/app路径下
+#修复后的项目使用，保证混淆结果一致
+#-applymapping mapping.txt
+#hotfix
+-keep class com.taobao.sophix.**{*;}
+-keep class com.ta.utdid2.device.**{*;}
+#防止inline
+-dontoptimize
+
+#man
+-keep class com.taobao.** {*;}
+-keep class com.alibaba.** {*;}
+-keep class com.ta.**{*;}
+-keep class com.ut.**{*;}
+-dontwarn com.taobao.**
+-dontwarn com.alibaba.**
+-dontwarn com.ta.**
+-dontwarn com.ut.**
+
+#feedback
+-keep class com.taobao.** {*;}
+-keep class com.alibaba.** {*;}
+-keep class com.ta.**{*;}
+-keep class com.ut.**{*;}
+-dontwarn com.taobao.**
+-dontwarn com.alibaba.**
+-dontwarn com.ta.**
+-dontwarn com.ut.**
+
+
+
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep class * extends com.bumptech.glide.module.AppGlideModule {
+ <init>(...);
+}
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+-keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
+  *** rewind();
+}
+
+## for DexGuard only
+#-keepresourcexmlelements manifest/application/meta-data@value=GlideModule

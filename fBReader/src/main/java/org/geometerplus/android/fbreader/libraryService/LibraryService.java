@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.os.FileObserver;
+import android.util.Log;
 
 import org.geometerplus.zlibrary.core.options.Config;
 
@@ -43,6 +44,7 @@ import org.geometerplus.android.fbreader.httpd.DataService;
 import org.geometerplus.android.fbreader.httpd.DataUtil;
 
 public class LibraryService extends Service {
+	private static final String TAG = "library";
 	private static SQLiteBooksDatabase ourDatabase;
 	private static final Object ourDatabaseLock = new Object();
 
@@ -418,6 +420,7 @@ public class LibraryService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		Log.e(TAG, "onBind: ");
 		return myLibrary;
 	}
 
@@ -436,12 +439,12 @@ public class LibraryService extends Service {
 			DataConnection,
 			DataService.BIND_AUTO_CREATE
 		);
+		Log.e(TAG, "onCreate: ");
 	}
 
 	@Override
 	public void onDestroy() {
 		unbindService(DataConnection);
-
 		if (myLibrary != null) {
 			final LibraryImplementation l = myLibrary;
 			myLibrary = null;

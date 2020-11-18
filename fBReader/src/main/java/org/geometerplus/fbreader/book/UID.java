@@ -19,7 +19,9 @@
 
 package org.geometerplus.fbreader.book;
 
-public class UID {
+import java.io.Serializable;
+
+public class UID implements Serializable {
 	public final String Type;
 	public final String Id;
 

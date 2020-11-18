@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
-
 android {
     compileSdkVersion 19
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         minSdkVersion 8
@@ -11,13 +10,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
         debug {
 
-        }
-        sourceSets {
         }
     }
 }

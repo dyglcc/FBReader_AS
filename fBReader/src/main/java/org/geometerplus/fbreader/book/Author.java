@@ -19,7 +19,9 @@
 
 package org.geometerplus.fbreader.book;
 
-public final class Author implements Comparable<Author> {
+import java.io.Serializable;
+
+public final class Author implements Comparable<Author>, Serializable {
 	public static final Author NULL = new Author("", "");
 
 	public static Author create(String name, String sortKey) {

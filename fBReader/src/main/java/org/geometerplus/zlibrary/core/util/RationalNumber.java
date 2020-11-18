@@ -19,7 +19,9 @@
 
 package org.geometerplus.zlibrary.core.util;
 
-public class RationalNumber {
+import java.io.Serializable;
+
+public class RationalNumber implements Serializable {
 	public static RationalNumber create(long numerator, long denominator) {
 		if (denominator == 0) {
 			return null;

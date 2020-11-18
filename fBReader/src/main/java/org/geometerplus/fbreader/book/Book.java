@@ -19,6 +19,8 @@
 
 package org.geometerplus.fbreader.book;
 
+
+
 public final class Book extends AbstractBook {
 	private final String myPath;
 
@@ -50,4 +52,5 @@ public final class Book extends AbstractBook {
 		}
 		return myPath.equals(((Book)o).myPath);
 	}
+
 }

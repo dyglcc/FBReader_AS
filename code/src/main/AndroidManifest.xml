@@ -11,8 +11,4 @@
     android:versionCode="44"
     android:versionName="5.0" >
 
-    <uses-sdk
-        android:minSdkVersion="4"
-        android:targetSdkVersion="16" />
-
 </manifest>

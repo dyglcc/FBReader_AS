@@ -47,7 +47,7 @@ public class EditStyleActivity extends PreferenceActivity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		super.onCreate(bundle);
-		Thread.setDefaultUncaughtExceptionHandler(new org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler(this));
+//		Thread.setDefaultUncaughtExceptionHandler(new org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler(this));
 
 		final PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
 		setPreferenceScreen(screen);

@@ -19,9 +19,10 @@
 
 package org.geometerplus.fbreader.book;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public final class Tag {
+public final class Tag implements Serializable {
 	public static final Tag NULL = new Tag(null, "");
 
 	private static final HashMap<Tag,Tag> ourTagSet = new HashMap<Tag,Tag>();

@@ -68,18 +68,18 @@ public abstract class TreeAdapter extends BaseAdapter {
 
 	public void replaceAll(final Collection<FBTree> items, final boolean invalidateViews) {
 		myActivity.runOnUiThread(new Runnable() {
-			public void run() {
-				synchronized (myItems) {
-					myItems.clear();
-					myItems.addAll(items);
-				}
-				notifyDataSetChanged();
-				if (invalidateViews) {
-					myActivity.getListView().invalidateViews();
-				}
+		public void run() {
+			synchronized (myItems) {
+				myItems.clear();
+				myItems.addAll(items);
 			}
-		});
-	}
+			notifyDataSetChanged();
+			if (invalidateViews) {
+				myActivity.getListView().invalidateViews();
+			}
+		}
+	});
+}
 
 	public int getCount() {
 		return myItems.size();

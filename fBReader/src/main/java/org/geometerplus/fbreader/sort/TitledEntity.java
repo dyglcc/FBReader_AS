@@ -19,6 +19,7 @@
 
 package org.geometerplus.fbreader.sort;
 
+import java.io.Serializable;
 import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ import android.os.Build;
 
 import org.fbreader.util.NaturalOrderComparator;
 
-public abstract class TitledEntity<T extends TitledEntity<T>> implements Comparable<T> {
+public abstract class TitledEntity<T extends TitledEntity<T>> implements Comparable<T> , Serializable {
 	private static final NaturalOrderComparator ourComparator = new NaturalOrderComparator();
 
 	private String myTitle;

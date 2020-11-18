@@ -36,6 +36,7 @@ proguard/
 
 # Log Files
 *.log
-dygreader.keystore
+dyg_release.keystore
 keystore.txt
+fBReader/release
 

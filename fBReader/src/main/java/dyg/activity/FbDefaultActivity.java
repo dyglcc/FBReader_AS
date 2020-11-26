@@ -1,17 +1,33 @@
 package dyg.activity;
 
-import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
+import com.binioter.guideview.Component;
+import com.binioter.guideview.Guide;
+import com.binioter.guideview.GuideBuilder;
 import com.dyg.android.reader.R;
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.runtime.Permission;
+import com.yanzhenjie.permission.runtime.PermissionDef;
 
+import org.geometerplus.android.fbreader.config.ConfigShadow;
 import org.geometerplus.android.fbreader.library.DefaultBooks;
 import org.geometerplus.android.fbreader.library.LibraryActivity;
+import org.guide.component.SimpleComponent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,15 +36,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
-public class FbDefaultActivity extends Activity implements EasyPermissions.PermissionCallbacks{
+public class FbDefaultActivity extends FragmentActivity {
     public static final String PATH_BOOKS = "localbooks";
     public static final String PATH_ICONS = "localicons";
     private static final int RC_CAMERA_AND_LOCATION = 110;
+    private static final String not_first_in_FbDefault = "not_first_in_FbDefault";
+
     public static void startActivity(Activity libraryActivity) {
         libraryActivity.startActivity(new Intent(libraryActivity, FbDefaultActivity.class));
+    }
+
+    public void showGuideView(final View view) {
+        if (ConfigShadow.getInstance().getSpecialBooleanValue(not_first_in_FbDefault, false)) {
+            return;
+        }
+        LibraryActivity.showGuideSimpleComponentView(view, "点击阅读该书", new Component.CallBack() {
+            @Override
+            public void callBackShown(View view) {
+
+            }
+
+            @Override
+            public void callBackDismiss(View view) {
+                ConfigShadow.getInstance().setSpecialBooleanValue(not_first_in_FbDefault, true);
+            }
+
+        },FbDefaultActivity.this);
+
     }
 
     @Override
@@ -36,34 +71,15 @@ public class FbDefaultActivity extends Activity implements EasyPermissions.Permi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout_localbooks);
         BackendSupport.getInstance();
-
-        methodRequiresTwoPermission();
-
-
-    }
-    @AfterPermissionGranted(RC_CAMERA_AND_LOCATION)
-    private void methodRequiresTwoPermission() {
-        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if (EasyPermissions.hasPermissions(this, perms)) {
-            // Already have permission, do the thing
-            // ...
-            extractBooks();
-        } else {
-            // Do not have permissions, request them now
-            EasyPermissions.requestPermissions(this, "需要sdcard读写权限",
-                    RC_CAMERA_AND_LOCATION, perms);
-        }
+        requestPermission(this, Permission.READ_PHONE_STATE,
+                Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE
+        );
     }
 
     private static final String TAG = "permission";
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        Log.i(TAG, "获取权限成功" + perms);
-        extractBooks();
-    }
 
-    private void extractBooks(){
-        BackendSupport.getInstance().post(new Runnable() {
+    private void extractBooks() {
+        BackendSupport.getInstance().postDelayed(0, new Runnable() {
             @Override
             public void run() {
                 File file = new File(getFilesDir(), PATH_BOOKS);
@@ -74,10 +90,7 @@ public class FbDefaultActivity extends Activity implements EasyPermissions.Permi
             }
         });
     }
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Log.i(TAG, "获取权限失败" + perms);
-    }
+
     private void extractFiles() {
         File file = getFilesDir();
         // create localbools dir
@@ -141,6 +154,7 @@ public class FbDefaultActivity extends Activity implements EasyPermissions.Permi
 
     private void initDefaultBooks() {
         new DefaultBooks(FbDefaultActivity.this);
+        Log.e(TAG, "initDefaultBooks: ");
     }
 
     @Override
@@ -148,15 +162,77 @@ public class FbDefaultActivity extends Activity implements EasyPermissions.Permi
         super.onDestroy();
         // test code del
 
-        File file = new File(getFilesDir(), PATH_BOOKS);
-        for (File file1 : file.listFiles()) {
-            file1.delete();
-        }
-        file.delete();
-        File file2 = new File(getFilesDir(), PATH_ICONS);
-        for (File file3 : file2.listFiles()) {
-            file3.delete();
-        }
-        file2.delete();
+//        File file = new File(getFilesDir(), PATH_BOOKS);
+//        for (File file1 : file.listFiles()) {
+//            file1.delete();
+//        }
+//        file.delete();
+//        File file2 = new File(getFilesDir(), PATH_ICONS);
+//        for (File file3 : file2.listFiles()) {
+//            file3.delete();
+//        }
+//        file2.delete();
     }
+
+    /**
+     * Request permissions.
+     */
+    public void requestPermission(final Context context,
+                                  @PermissionDef String... permissions) {
+        AndPermission.with(context)
+                .runtime()
+                .permission(permissions)
+                .rationale(new RuntimeRationale())
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> permissions) {
+                        Log.e(TAG, "onAction: ");
+                        extractBooks();
+                    }
+                })
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(@NonNull List<String> permissions) {
+                        if (AndPermission.hasAlwaysDeniedPermission(context, permissions)) {
+                            showSettingDialog(context, permissions);
+                        }
+                    }
+                })
+                .start();
+    }
+
+    /**
+     * Display setting dialog.
+     */
+    public static void showSettingDialog(final Context context, final List<String> permissions) {
+        List<String> permissionNames = Permission.transformText(context, permissions);
+        String message = context.getString(R.string.message_permission_always_failed,
+                TextUtils.join("\n", permissionNames));
+
+        new AlertDialog.Builder(context).setCancelable(false)
+                .setTitle(R.string.title_dialog)
+                .setMessage(message)
+                .setPositiveButton(R.string.setting, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setPermission(context);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+    }
+
+    private static final int REQUEST_CODE_SETTING = 1;
+
+    /**
+     * Set permissions.
+     */
+    private static void setPermission(Context context) {
+        AndPermission.with(context).runtime().setting().start(REQUEST_CODE_SETTING);
+    }
+
 }

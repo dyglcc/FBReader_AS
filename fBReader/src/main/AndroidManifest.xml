@@ -15,15 +15,18 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name="org.geometerplus.android.fbreader.FBReaderApplication"
         android:allowBackup="true"
         android:icon="@drawable/fbreader"
         android:label="@string/app_name"
+        android:appComponentFactory="empty"
         android:logo="@drawable/fbreader_bw"
-        tools:replace="android:allowBackup">
-
+        tools:replace="android:allowBackup,android:appComponentFactory"
+        tools:targetApi="p">
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
         <activity
             android:name="org.geometerplus.android.fbreader.error.BookReadingErrorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -37,13 +40,13 @@
         </activity>
 
         <activity android:name="dyg.activity.SplashActivity"
-            android:theme="@style/starting">
+            android:theme="@style/FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="dyg.activity.FbDefaultActivity">
+        <activity  android:exported="true" android:name="dyg.activity.FbDefaultActivity">
 
         </activity>
 
@@ -229,9 +232,10 @@
             android:name="org.geometerplus.android.fbreader.bookmark.BookmarksActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
+            android:process=":bookmarks"
             android:theme="@style/FBReader.Activity.NoActionBar">
 
-<!--            android:process=":bookmarks"-->
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -265,12 +269,13 @@
         <activity
             android:name="org.geometerplus.android.fbreader.image.ImageViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":imageView"
             android:theme="@style/FBReader.Activity" />
 
 <!--        android:process=":imageView"-->
 
         <service
-            android:name="org.geometerplus.android.fbreader.libraryService.LibraryService">
+            android:name="org.geometerplus.android.fbreader.libraryService.LibraryService" android:process=":libraryService">
 <!--            android:process=":libraryService"-->
             <intent-filter>
                 <action android:name="android.fbreader.action.LIBRARY_SERVICE" />
@@ -278,6 +283,7 @@
         </service>
         <service
             android:name="org.geometerplus.android.fbreader.config.ConfigService"
+            android:process=":configService"
             android:launchMode="singleTask">
 
 <!--            android:process=":configService"-->
@@ -287,6 +293,7 @@
         </service>
         <service
             android:name="org.geometerplus.android.fbreader.sync.SyncService"
+            android:process=":synchroniser"
             android:launchMode="singleTask">
 
 <!--            android:process=":synchroniser"-->
@@ -301,6 +308,7 @@
         <activity
             android:name="org.geometerplus.android.fbreader.library.BookInfoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":library"
             android:theme="@style/FBReader.Activity">
 
 <!--            android:process=":library"-->
@@ -311,6 +319,7 @@
         </activity>
         <activity
             android:name="org.geometerplus.android.fbreader.library.LibrarySearchActivity"
+            android:process=":library"
             android:theme="@android:style/Theme.NoDisplay">
 
 <!--            android:process=":library"-->
@@ -324,7 +333,7 @@
         <activity
             android:name="org.geometerplus.android.fbreader.library.LibraryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-
+            android:process=":library"
             android:theme="@style/FBReader.Activity">
 <!--            android:process=":library"-->
             <meta-data
@@ -342,6 +351,7 @@
         <activity
             android:name="org.geometerplus.android.fbreader.preferences.PreferenceActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":preferences"
             android:theme="@style/FBReader.Activity">
 
 <!--            android:process=":preferences"-->
@@ -358,17 +368,20 @@
         <activity
             android:name="org.geometerplus.android.fbreader.preferences.EditBookInfoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":library"
             android:theme="@style/FBReader.Activity" />
 
 <!--        android:process=":library"-->
         <activity
             android:name="org.geometerplus.android.fbreader.sync.MissingBookActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
 <!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.BookDownloader"
+            android:process=":networkLibrary"
             android:theme="@android:style/Theme.NoDisplay">
 
 <!--            android:process=":networkLibrary"-->
@@ -454,15 +467,15 @@
         <service
             android:name="org.geometerplus.android.fbreader.network.BookDownloaderService"
             android:exported="false"
+            android:process=":networkLibrary"
             android:launchMode="singleTask" />
 
-<!--        android:process=":networkLibrary"-->
 
         <activity
             android:name="org.geometerplus.android.fbreader.network.NetworkSearchActivity"
+            android:process=":networkLibrary"
             android:theme="@android:style/Theme.NoDisplay">
 
-<!--            android:process=":networkLibrary"-->
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -474,15 +487,15 @@
             android:name="org.geometerplus.android.fbreader.network.auth.WebAuthorisationScreen"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Activity" />
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.NetworkLibraryPrimaryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Activity">
 
-<!--            android:process=":networkLibrary"-->
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value="org.geometerplus.android.fbreader.network.NetworkSearchActivity" />
@@ -506,33 +519,33 @@
         <activity
             android:name="org.geometerplus.android.fbreader.network.NetworkLibrarySecondaryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Activity" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.AuthenticationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.BuyBooksActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.AddCatalogMenuActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.AddCustomCatalogActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog">
 
-<!--            android:process=":networkLibrary"-->
             <intent-filter>
                 <action android:name="android.fbreader.action.ADD_OPDS_CATALOG" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -569,33 +582,33 @@
         <activity
             android:name="org.geometerplus.android.fbreader.network.AuthorisationMenuActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.litres.UserRegistrationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.litres.AutoRegistrationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.TopupMenuActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Dialog" />
 
-<!--        android:process=":networkLibrary"-->
         <activity
             android:name="org.geometerplus.android.fbreader.network.NetworkBookInfoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Activity">
 
-<!--            android:process=":networkLibrary"-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -606,13 +619,12 @@
         </activity>
         <activity
             android:name="org.geometerplus.android.fbreader.network.CatalogManagerActivity"
+            android:process=":networkLibrary"
             android:theme="@style/FBReader.Activity" />
 
-<!--        android:process=":networkLibrary"-->
 
         <receiver
             android:name="org.geometerplus.android.fbreader.network.ListenerCallback">
-
             android:process=":networkLibrary"
             <intent-filter>
                 <action android:name="android.fbreader.action.network.SIGNIN" />
@@ -632,9 +644,9 @@
         <service
             android:name="org.geometerplus.android.fbreader.httpd.DataService"
             android:exported="false"
+            android:process=":dataService"
             android:launchMode="singleTask" />
 
-<!--        android:process=":dataService"-->
         <service
             android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider"
             android:exported="false" />
@@ -673,5 +685,17 @@
         <meta-data
             android:name="CHANNEL_DENGTA"
             android:value="host" />
+
+        <provider
+            android:name="com.sspsdk.tpartyutils.utils.sp.helper.RYContentProvider"
+            android:authorities="${applicationId}.sspsdk.RYContentProvider"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544/5224354917"/>
+<!--        <meta-data-->
+<!--            android:name="com.google.android.gms.ads.APPLICATION_ID"-->
+<!--            android:value="ca-app-pub-3940256099942544/3419835294"/>-->
     </application>
 </manifest>

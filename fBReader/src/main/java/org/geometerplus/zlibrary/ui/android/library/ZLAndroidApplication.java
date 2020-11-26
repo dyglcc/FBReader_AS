@@ -27,6 +27,8 @@ import android.content.pm.PackageManager;
 import com.alibaba.sdk.android.man.MANService;
 import com.alibaba.sdk.android.man.MANServiceProvider;
 import com.dyg.android.reader.BuildConfig;
+import com.sspsdk.RYSDK;
+import com.sspsdk.databean.ExpInitParams;
 import com.tencent.bugly.Bugly;
 
 import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageManager;
@@ -54,6 +56,14 @@ public abstract class ZLAndroidApplication extends Application {
 
         initManServiceFromAli();
 
+
+        ExpInitParams expInitParams = new ExpInitParams.Builder()
+                .channelId("DEBUG") // 可选
+                .mediaUid("reyun_yingwenyuanzhu")// 可选
+                .build();
+        RYSDK.init(this, "b1a0fa5b", expInitParams);
+        // 正式环境请务必设置为 false 或者 不设置值 默认为false
+        RYSDK.setDebugModel(false);
     }
 
     public final ZLAndroidLibrary library() {

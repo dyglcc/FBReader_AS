@@ -20,13 +20,11 @@
 package org.geometerplus.fbreader.fbreader;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.*;
 
 import org.fbreader.util.ComparisonUtil;
 
-import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.zlibrary.core.application.*;
 import org.geometerplus.zlibrary.core.drm.FileEncryptionInfo;
 import org.geometerplus.zlibrary.core.drm.EncryptionMethod;

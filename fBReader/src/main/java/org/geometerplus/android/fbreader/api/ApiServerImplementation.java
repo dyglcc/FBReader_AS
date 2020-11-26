@@ -317,11 +317,11 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 
 	// preferences information
 	public List<String> getOptionGroups() {
-		return Config.Instance().listGroups();
+		return Config.getInstance().listGroups();
 	}
 
 	public List<String> getOptionNames(String group) {
-		return Config.Instance().listNames(group);
+		return Config.getInstance().listNames(group);
 	}
 
 	public String getOptionValue(String group, String name) {

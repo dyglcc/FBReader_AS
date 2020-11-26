@@ -6,5 +6,5 @@
     </item>
     <item
         android:drawable="@drawable/fbreader"
-        android:gravity="bottom|center" />
+        android:gravity="center" />
 </layer-list>

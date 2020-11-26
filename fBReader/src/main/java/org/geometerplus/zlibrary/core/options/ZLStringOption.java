@@ -25,8 +25,8 @@ public final class ZLStringOption extends ZLOption {
 	}
 
 	public String getValue() {
-		if (mySpecialName != null && !Config.Instance().isInitialized()) {
-			return Config.Instance().getSpecialStringValue(mySpecialName, myDefaultStringValue);
+		if (mySpecialName != null && !Config.getInstance().isInitialized()) {
+			return Config.getInstance().getSpecialStringValue(mySpecialName, myDefaultStringValue);
 		} else {
 			return getConfigValue();
 		}
@@ -37,14 +37,14 @@ public final class ZLStringOption extends ZLOption {
 			return;
 		}
 		if (mySpecialName != null) {
-			Config.Instance().setSpecialStringValue(mySpecialName, value);
+			Config.getInstance().setSpecialStringValue(mySpecialName, value);
 		}
 		setConfigValue(value);
 	}
 
 	public void saveSpecialValue() {
-		if (mySpecialName != null && Config.Instance().isInitialized()) {
-			Config.Instance().setSpecialStringValue(mySpecialName, getValue());
+		if (mySpecialName != null && Config.getInstance().isInitialized()) {
+			Config.getInstance().setSpecialStringValue(mySpecialName, getValue());
 		}
 	}
 }

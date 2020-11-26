@@ -23,9 +23,7 @@ import java.util.*;
 
 import android.app.Service;
 import android.content.*;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -69,7 +67,7 @@ public class BookCollectionShadow extends AbstractBookCollection<Book> implement
         Log.e("mtree", "bindToService: myInterface " + (myInterface == null ? "null" : "not null"));
         if (myInterface != null && myContext == context) {
             if (onBindAction != null) {
-                Config.Instance().runOnConnect(onBindAction);
+                Config.getInstance().runOnConnect(onBindAction);
             }
             return true;
         } else {

@@ -14,4 +14,17 @@
 		android:scrollbarAlwaysDrawVerticalTrack="true"
 		android:fadeScrollbars="false"
 	/>
+	<ViewStub
+		android:id="@+id/view_stub"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true"
+		android:layout_marginBottom="210dp"
+		android:layout="@layout/view_stub"
+		android:background="@color/dark_gray"
+		android:layout_width="1px"
+		android:layout_height="1px"/>
+<!--	<View android:layout_centerInParent="true"-->
+<!--		android:layout_height="100dp"-->
+<!--		android:background="@color/dark_gray"-->
+<!--		android:layout_width="100dp"/>-->
 </RelativeLayout>

@@ -3,14 +3,20 @@ package dyg.activity;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BackendSupport extends HandlerThread {
+    private static final String TAG = "TranslateAction";
+    private List<Message> messages = new ArrayList<>();
+    private List<DelayedRunnable> runnables = new ArrayList<>();
+
+
     private Handler handler = null;
     private static volatile BackendSupport instance = null;
-    private List<Runnable> runnables = new ArrayList<>();
+
 
     public static BackendSupport getInstance() {
         if (instance == null) {
@@ -38,20 +44,60 @@ public class BackendSupport extends HandlerThread {
         };
         if (runnables.size() != 0) {
             for (int i = 0; i < runnables.size(); i++) {
-                handler.post(runnables.get(i));
+                DelayedRunnable delayedRunnable = runnables.get(i);
+                handler.postDelayed(delayedRunnable.runnable, delayedRunnable.delayed);
+            }
+        }
+        if (messages.size() != 0) {
+            for (int i = 0; i < messages.size(); i++) {
+                handler.sendMessage(messages.get(i));
             }
         }
     }
 
     public void sendMessage(Message message) {
-        handler.sendMessage(message);
+        synchronized (this) {
+            if (handler == null) {
+                messages.add(message);
+            } else {
+                handler.sendMessage(message);
+            }
+        }
     }
 
-    public void post(Runnable runnable) {
-        if (handler == null) {
-            runnables.add(runnable);
-        } else {
-            handler.post(runnable);
+    public void postDelayed(long delay, Runnable runnable) {
+        synchronized (this) {
+            if (handler == null) {
+                DelayedRunnable delayedRunnable = new DelayedRunnable(runnable, delay);
+                runnables.add(delayedRunnable);
+            } else {
+                handler.postDelayed(runnable, delay);
+            }
+        }
+
+    }
+
+    public void removeRunable(Runnable runnable) {
+        synchronized (this) {
+            if (handler == null) {
+                Log.e(TAG, "removeRunable: remove before " + runnables.size());
+                runnables.remove(runnable);
+                Log.e(TAG, "removeRunable: removed after " + runnables.size());
+            } else {
+                handler.removeCallbacks(runnable);
+                Log.e(TAG, "handler removeCallback");
+            }
+        }
+
+    }
+
+    private static class DelayedRunnable {
+        private Runnable runnable;
+        private long delayed;
+
+        DelayedRunnable(Runnable runnable, long delay) {
+            this.runnable = runnable;
+            this.delayed = delay;
         }
     }
 }

@@ -19,6 +19,9 @@
 
 package org.geometerplus.android.fbreader;
 
+import android.content.Context;
+import android.support.multidex.MultiDex;
+
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidApplication;
 
 
@@ -26,5 +29,11 @@ public class FBReaderApplication extends ZLAndroidApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(base);
     }
 }

@@ -149,7 +149,7 @@ abstract class ZLPreferenceActivity extends android.preference.PreferenceActivit
 			screenId = intent.getStringExtra(SCREEN_KEY);
 		}
 
-		Config.Instance().runOnConnect(new Runnable() {
+		Config.getInstance().runOnConnect(new Runnable() {
 			public void run() {
 				init(intent);
 				final Screen screen = myScreenMap.get(screenId);

@@ -1396,7 +1396,7 @@ final class SQLiteBooksDatabase extends BooksDatabase {
 				statement.bindLong(4, chr);
 				statement.execute();
 			}
-			Config.Instance().removeGroup(fileName);
+			Config.getInstance().removeGroup(fileName);
 		}
 		cursor.close();
 	}

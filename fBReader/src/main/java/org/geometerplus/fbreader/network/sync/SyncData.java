@@ -246,6 +246,6 @@ public class SyncData {
 	}
 
 	public void reset() {
-		Config.Instance().removeGroup("SyncData");
+		Config.getInstance().removeGroup("SyncData");
 	}
 }

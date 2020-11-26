@@ -28,7 +28,7 @@ public abstract class Config {
 		}
 	}
 
-	public static Config Instance() {
+	public static Config getInstance() {
 		return ourInstance;
 	}
 
@@ -109,6 +109,8 @@ public abstract class Config {
 	public abstract boolean getSpecialBooleanValue(String name, boolean defaultValue);
 	public abstract void setSpecialBooleanValue(String name, boolean value);
 	public abstract String getSpecialStringValue(String name, String defaultValue);
+	public abstract int getSpecialIntValue(String name, int defaultV);
+	public abstract void setSpecialIntValue(String name,int value);
 	public abstract void setSpecialStringValue(String name, String value);
 
 	protected abstract String getValueInternal(String group, String name) throws NotAvailableException;

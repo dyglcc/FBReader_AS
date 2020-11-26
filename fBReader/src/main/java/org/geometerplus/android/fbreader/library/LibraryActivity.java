@@ -21,6 +21,7 @@ package org.geometerplus.android.fbreader.library;
 
 import java.util.*;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.*;
@@ -31,8 +32,12 @@ import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.binioter.guideview.Component;
+import com.binioter.guideview.Guide;
+import com.binioter.guideview.GuideBuilder;
 import com.dyg.android.reader.R;
 
+import org.geometerplus.android.fbreader.config.ConfigShadow;
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 
@@ -48,6 +53,7 @@ import org.geometerplus.android.fbreader.*;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tree.TreeActivity;
+import org.guide.component.SimpleComponent;
 
 import dyg.activity.FbDefaultActivity;
 
@@ -80,12 +86,53 @@ public class LibraryActivity extends TreeActivity<LibraryTree> implements MenuIt
                 init(getIntent());
             }
         });
-        findViewById(R.id.local).setOnClickListener(new View.OnClickListener() {
+        final View local = findViewById(R.id.local);
+        local.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FbDefaultActivity.startActivity(LibraryActivity.this);
             }
         });
+
+        local.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showGuide(local);
+            }
+        },300);
+
+
+
+    }
+
+    private void showGuide(View local) {
+        if (ConfigShadow.getInstance().getSpecialBooleanValue(not_first_in_library, false)) {
+            return;
+        }
+        showGuideSimpleComponentView(local, "本地书库从这里进入", new Component.CallBack() {
+            @Override
+            public void callBackShown(View view) {
+            }
+
+            @Override
+            public void callBackDismiss(View view) {
+                ConfigShadow.getInstance().setSpecialBooleanValue(not_first_in_library, true);
+                View sdcardView = getListView().getChildAt(getListView().getChildCount() - 1);
+                showGuideSimpleComponentView(sdcardView, "点击这里从sdcard添加数据，目前单词翻译仅支持txt", new Component.CallBack() {
+
+                    @Override
+                    public void callBackShown(View view) {
+                    }
+
+                    @Override
+                    public void callBackDismiss(View view) {
+                        ConfigShadow.getInstance().getSpecialBooleanValue(not_first_in_library, true);
+                    }
+                }, LibraryActivity.this);
+            }
+
+
+        }, LibraryActivity.this);
     }
 
     @Override
@@ -142,14 +189,10 @@ public class LibraryActivity extends TreeActivity<LibraryTree> implements MenuIt
     }
 
     //
-    // show BookInfoActivity
-    //
     private void showBookInfo(Book book) {
         final Intent intent = new Intent(getApplicationContext(), BookInfoActivity.class);
         FBReaderIntents.putBookExtra(intent, book);
         OrientationUtil.startActivity(this, intent);
-
-        //
 
     }
 
@@ -513,4 +556,30 @@ public class LibraryActivity extends TreeActivity<LibraryTree> implements MenuIt
     public void onBuildEvent(IBookCollection.Status status) {
         setProgressBarIndeterminateVisibility(!status.IsComplete);
     }
+
+    private static final String not_first_in_library = "not_first_in_library";
+
+    public static void showGuideSimpleComponentView(View view, String txt, final Component.CallBack callBack, Activity activity) {
+        GuideBuilder builder = new GuideBuilder();
+        builder.setTargetView(view)
+                .setAlpha(200)
+                .setHighTargetCorner(20)
+                .setHighTargetPadding(10);
+        builder.setOnVisibilityChangedListener(new GuideBuilder.OnVisibilityChangedListener() {
+            @Override
+            public void onShown() {
+
+            }
+
+            @Override
+            public void onDismiss() {
+                callBack.callBackDismiss(null);
+            }
+        });
+
+        builder.addComponent(new SimpleComponent(view, txt, callBack));
+        Guide guide = builder.createGuide();
+        guide.show(activity);
+    }
+
 }

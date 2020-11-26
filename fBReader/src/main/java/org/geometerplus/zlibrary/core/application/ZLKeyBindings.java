@@ -21,8 +21,6 @@ package org.geometerplus.zlibrary.core.application;
 
 import java.util.*;
 
-import android.view.KeyEvent;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -50,7 +48,7 @@ public final class ZLKeyBindings {
 
 	private ZLKeyBindings(String name) {
 		myName = name;
-		Config.Instance().runOnConnect(new Initializer());
+		Config.getInstance().runOnConnect(new Initializer());
 	}
 
 	private class Initializer implements Runnable {

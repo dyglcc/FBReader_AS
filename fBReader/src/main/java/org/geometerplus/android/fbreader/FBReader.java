@@ -27,26 +27,26 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetManager;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
+import android.os.MessageQueue;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
-import com.alibaba.sdk.android.man.MANHitBuilders;
-import com.alibaba.sdk.android.man.MANService;
-import com.alibaba.sdk.android.man.MANServiceProvider;
+import com.binioter.guideview.Guide;
+import com.binioter.guideview.GuideBuilder;
 import com.dyg.android.reader.R;
 
 import org.geometerplus.android.fbreader.api.ApiListener;
@@ -54,6 +54,7 @@ import org.geometerplus.android.fbreader.api.ApiServerImplementation;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.api.MenuNode;
 import org.geometerplus.android.fbreader.api.PluginApi;
+import org.geometerplus.android.fbreader.config.ConfigShadow;
 import org.geometerplus.android.fbreader.dict.DictionaryUtil;
 import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 import org.geometerplus.android.fbreader.httpd.DataService;
@@ -90,6 +91,7 @@ import org.geometerplus.zlibrary.ui.android.library.ZLAndroidApplication;
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
+import org.guide.component.LottieComponent;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -99,13 +101,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import pub.devrel.easypermissions.EasyPermissions;
+import dyg.activity.OnPause;
+
 
 public final class FBReader extends FBReaderMainActivity implements ZLApplicationWindow {
-    private static final String TAG = "FBReader";
     private static final String TAG1 = "bindService";
     public static final int RESULT_DO_NOTHING = RESULT_FIRST_USER;
     public static final int RESULT_REPAINT = RESULT_FIRST_USER + 1;
+    public static final String not_first_in_Fbreader = "not_first_in_Fbreader";
+    private List<OnPause> onPauseObserverAble = new ArrayList<>();
+    private static final String TAG = "FBReader";
 
     public static Intent defaultIntent(Context context) {
         return new Intent(context, FBReader.class)
@@ -192,7 +197,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 NotificationUtil.drop(this, myBook);
             }
         }
-        Config.Instance().runOnConnect(new Runnable() {
+        Config.getInstance().runOnConnect(new Runnable() {
             public void run() {
                 myFBReaderApp.openBook(myBook, bookmark, action, myNotifier);
                 AndroidFontUtil.clearFontCache();
@@ -237,6 +242,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -246,7 +252,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 DataService.BIND_AUTO_CREATE
         );
 
-        final Config config = Config.Instance();
+        final Config config = Config.getInstance();
         config.runOnConnect(new Runnable() {
             public void run() {
                 config.requestAllValuesForGroup("Options");
@@ -302,7 +308,9 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         myFBReaderApp.addAction(ActionCode.SHOW_NETWORK_LIBRARY, new ShowNetworkLibraryAction(this, myFBReaderApp));
 
         myFBReaderApp.addAction(ActionCode.SHOW_MENU, new ShowMenuAction(this, myFBReaderApp));
-        myFBReaderApp.addAction(ActionCode.SHOW_TRANSLATE, new TranslateAction(this, myFBReaderApp));
+        TranslateAction translateAction = new TranslateAction(this, myFBReaderApp);
+        myFBReaderApp.addAction(ActionCode.SHOW_TRANSLATE, translateAction);
+        onPauseObserverAble.add(translateAction);
         myFBReaderApp.addAction(ActionCode.SHOW_NAVIGATION, new ShowNavigationAction(this, myFBReaderApp));
         myFBReaderApp.addAction(ActionCode.SEARCH, new SearchAction(this, myFBReaderApp));
         myFBReaderApp.addAction(ActionCode.SHARE_BOOK, new ShareBookAction(this, myFBReaderApp));
@@ -355,6 +363,54 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
                 });
             }
         }
+
+//        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+//            @Override
+//            public void onInitializationComplete(InitializationStatus initializationStatus) {
+//                Log.e(TAG, "onInitializationComplete: google ad init finished");
+//            }
+//        });
+        showGuideView3();
+
+    }
+
+    ViewStub viewstub = null;
+
+    public void showGuideView3() {
+        if (ConfigShadow.getInstance().getSpecialBooleanValue(not_first_in_Fbreader, false)) {
+            return;
+        }
+        viewstub = findViewById(R.id.view_stub);
+        final View view = viewstub.inflate();
+        view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        final GuideBuilder builder1 = new GuideBuilder();
+                        builder1.setOutsideTouchable(false)
+                                .setTargetView(view)
+                                .setAlpha(200)
+                                .setHighTargetCorner(0)
+                                .setHighTargetPadding(0)
+                                .setExitAnimationId(android.R.anim.fade_out);
+                        builder1.setOnVisibilityChangedListener(new GuideBuilder.OnVisibilityChangedListener() {
+                            @Override
+                            public void onShown() {
+                            }
+
+                            @Override
+                            public void onDismiss() {
+                                viewstub.setVisibility(View.GONE);
+                                ConfigShadow.getInstance().setSpecialBooleanValue(not_first_in_Fbreader, true);
+                            }
+                        });
+
+                        builder1.addComponent(new LottieComponent());
+                        Guide guide = builder1.createGuide();
+                        guide.setShouldCheckLocInWindow(false);
+                        guide.show(FBReader.this);
+                    }
+                }, 3000);
+
     }
 
     @Override
@@ -457,30 +513,9 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
     @Override
     protected void onStart() {
         super.onStart();
-        try {
-// add ali man
-            MANHitBuilders.MANCustomHitBuilder hitBuilder = new MANHitBuilders.MANCustomHitBuilder("playmusic");
-// 可使用如下接口设置时长：3分钟
-            hitBuilder.setDurationOnEvent(3 * 60 * 1000);
-// 设置关联的页面名称：聆听
-            hitBuilder.setEventPage("Listen");
-// 设置属性：类型摇滚
-            hitBuilder.setProperty("type", "rock");
-// 设置属性：歌曲标题
-            hitBuilder.setProperty("title", "wonderful tonight");
-// 发送自定义事件打点
-            MANService manService = MANServiceProvider.getService();
-            manService.getMANAnalytics().getDefaultTracker().send(hitBuilder.build());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // man --end
-
         getCollection().bindToService(this, null);
 
-        Config.Instance().runOnConnect(new Runnable() {
+        Config.getInstance().runOnConnect(new Runnable() {
             public void run() {
                 Log.e(TAG1, "onCreate: " + "475");
                 new Thread() {
@@ -497,7 +532,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
 
         final ZLAndroidLibrary zlibrary = getZLibrary();
 
-        Config.Instance().runOnConnect(new Runnable() {
+        Config.getInstance().runOnConnect(new Runnable() {
             public void run() {
                 final boolean showStatusBar = zlibrary.ShowStatusBarOption.getValue();
                 if (showStatusBar != myShowStatusBarFlag) {
@@ -576,7 +611,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         super.onResume();
 
         myStartTimer = true;
-        Config.Instance().runOnConnect(new Runnable() {
+        Config.getInstance().runOnConnect(new Runnable() {
             public void run() {
                 SyncOperations.enableSync(FBReader.this, myFBReaderApp.SyncOptions);
 
@@ -593,7 +628,7 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
 
                 getCollection().bindToService(FBReader.this, new Runnable() {
                     public void run() {
-                        Log.e(TAG1, "run: bindService" );
+                        Log.e(TAG1, "run: bindService");
                         final BookModel model = myFBReaderApp.Model;
                         if (model == null || model.Book == null) {
                             return;
@@ -684,6 +719,9 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
         }
         myFBReaderApp.onWindowClosing();
 
+        for (OnPause onPause : onPauseObserverAble) {
+            onPause.onPause();
+        }
         super.onPause();
     }
 
@@ -1125,6 +1163,5 @@ public final class FBReader extends FBReaderMainActivity implements ZLApplicatio
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 }

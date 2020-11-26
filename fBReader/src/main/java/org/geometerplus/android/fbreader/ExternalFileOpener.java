@@ -61,7 +61,7 @@ class ExternalFileOpener implements FBReaderApp.ExternalFileOpener {
 		new ZLStringOption("PluginCode", plugin.packageName(), "").setValue(myPluginCode);
 		intent.putExtra("PLUGIN_CODE", myPluginCode);
 
-		Config.Instance().runOnConnect(new Runnable() {
+		Config.getInstance().runOnConnect(new Runnable() {
 			public void run() {
 				try {
 					myReader.startActivity(intent);

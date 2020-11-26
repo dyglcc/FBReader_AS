@@ -1,6 +1,8 @@
 package org.geometerplus.android.fbreader.library;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.dyg.android.reader.R;
 
 import org.geometerplus.android.fbreader.FBReader;
+import org.geometerplus.android.fbreader.api.FBReaderIntents;
+import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+import org.geometerplus.android.util.OrientationUtil;
 import org.geometerplus.fbreader.book.Book;
 
 import java.io.File;
@@ -33,17 +38,14 @@ import static dyg.activity.FbDefaultActivity.PATH_ICONS;
 public class DefaultBooks {
     private static final String TAG = "defaut_book";
     WeakReference<FbDefaultActivity> activityWeakReference = null;
-    //    private List<DefaultBookInfo> list = null;
     String[] strings = null;
     String[] icons = null;
-    ConorTransform conorTransform;
+    private BookCollectionShadow myCollection = new BookCollectionShadow();
 
     public DefaultBooks(final FbDefaultActivity defaultBooksActivity) {
         activityWeakReference = new WeakReference(defaultBooksActivity);
         File dirBooks = new File(defaultBooksActivity.getFilesDir(), PATH_BOOKS);
         File dirIcons = new File(defaultBooksActivity.getFilesDir(), PATH_ICONS);
-        conorTransform = new ConorTransform(defaultBooksActivity, 20);
-        conorTransform.setExceptCorner(false, false, false, false);
         if (dirBooks.exists() && dirIcons.exists()) {
             strings = dirBooks.list();
             icons = dirIcons.list();
@@ -51,11 +53,12 @@ public class DefaultBooks {
             Log.e(TAG, "DefaultBooks default file is empty");
             return;
         }
+        Log.e(TAG, "DefaultBooks: ");
         final DefaultBooksAdapter adapter = new DefaultBooksAdapter();
         defaultBooksActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                HeadGridView gridView = defaultBooksActivity.findViewById(R.id.layout_default_books);
+                final HeadGridView gridView = defaultBooksActivity.findViewById(R.id.layout_default_books);
                 View headerView = LayoutInflater.from(defaultBooksActivity).inflate(R.layout.grid_head, null, false);
                 gridView.addHeaderView(headerView);
                 gridView.setAdapter(adapter);
@@ -63,22 +66,50 @@ public class DefaultBooks {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Log.e(TAG, "onItemClick: " + position);
-                        try{
-                            String name = (String) parent.getAdapter().getItem(position);
-                            Book book = new Book(name.hashCode(),
-                                    defaultBooksActivity.getFilesDir()
-                                            + "/" + PATH_BOOKS + "/"
-                                            + name, name, "utf8", "en");
-                            FBReader.openBookActivity(defaultBooksActivity, book, null);
-                        }catch (Exception t){
+                        try {
+                            final String name = (String) parent.getAdapter().getItem(position);
+                            myCollection.bindToService(defaultBooksActivity, new Runnable() {
+                                public void run() {
+                                    try {
+                                        Book book = myCollection.getBookByFile(defaultBooksActivity.getFilesDir()
+                                                + "/" + PATH_BOOKS + "/"
+                                                + name);
+//                                        Intent intent = new Intent(defaultBooksActivity, BookInfoActivity.class);
+//                                        FBReaderIntents.putBookExtra(intent, book);
+//                                        OrientationUtil.startActivity(defaultBooksActivity, intent);
+                                        FBReader.openBookActivity(defaultBooksActivity, book, null);
+
+
+                                        if (defaultBooksActivity != null && !defaultBooksActivity.isFinishing()) {
+                                            defaultBooksActivity.finish();
+                                        }
+                                    } catch (Throwable e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            });
+
+                        } catch (Exception t) {
                             t.printStackTrace();
                         }
 
                     }
                 });
+                // 显示界面并展示蒙层引导
+                gridView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (gridView.getCount() > 2) {
+                            View childViewSec = gridView.getChildAt(3);
+                            if (activityWeakReference.get() != null) {
+                                activityWeakReference.get().showGuideView(childViewSec);
+                            }
+                        }
+                    }
+                },300);
             }
         });
-
 
     }
 
@@ -106,6 +137,7 @@ public class DefaultBooks {
             if (activityWeakReference == null || activityWeakReference.get() == null) {
                 return null;
             }
+            Log.e(TAG, "getView: ");
             if (convertView == null) {
                 convertView = LayoutInflater.from(activityWeakReference.get()).inflate(R.layout.item_default_book, null, false);
                 holder = new ViewHolder((TextView) convertView.findViewById(R.id.tv_book_name),

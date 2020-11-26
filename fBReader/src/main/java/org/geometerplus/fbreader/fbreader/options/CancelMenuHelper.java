@@ -40,7 +40,7 @@ public class CancelMenuHelper {
 		new ZLBooleanOption(GROUP_NAME, "positions", true);
 
 	public CancelMenuHelper() {
-		Config.Instance().requestAllValuesForGroup(GROUP_NAME);
+		Config.getInstance().requestAllValuesForGroup(GROUP_NAME);
 	}
 
 	public static enum ActionType {

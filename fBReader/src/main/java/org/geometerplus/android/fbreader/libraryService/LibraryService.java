@@ -33,9 +33,6 @@ import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.text.view.ZLTextFixedPosition;
 import org.geometerplus.zlibrary.text.view.ZLTextPosition;
 
-import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageData;
-import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageManager;
-
 import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.book.*;
 
@@ -106,7 +103,7 @@ public class LibraryService extends Service {
 		}
 
 		public void reset(final boolean force) {
-			Config.Instance().runOnConnect(new Runnable() {
+			Config.getInstance().runOnConnect(new Runnable() {
 				public void run() {
 					resetInternal(force);
 				}

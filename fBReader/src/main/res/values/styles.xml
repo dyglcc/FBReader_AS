@@ -12,7 +12,11 @@
         <item name="android:windowBackground">@color/transparent</item>
     </style>
 
-    <style name="starting" parent="android:Theme.NoTitleBar.Fullscreen">
-        <item name="android:background">@drawable/pre_layer_list</item>
+    <style name="FullScreen" parent="Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/pre_layer_list</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 </resources>

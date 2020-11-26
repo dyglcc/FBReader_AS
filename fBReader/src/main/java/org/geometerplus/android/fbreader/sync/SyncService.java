@@ -19,25 +19,48 @@
 
 package org.geometerplus.android.fbreader.sync;
 
-import java.io.*;
-import java.util.*;
 
-import android.app.*;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
+import org.geometerplus.fbreader.book.Book;
+import org.geometerplus.fbreader.book.BookEvent;
+import org.geometerplus.fbreader.book.BookQuery;
+import org.geometerplus.fbreader.book.BookUtil;
+import org.geometerplus.fbreader.book.Filter;
+import org.geometerplus.fbreader.book.IBookCollection;
+import org.geometerplus.zlibrary.core.network.JsonRequest;
+import org.geometerplus.zlibrary.core.network.JsonRequest2;
+import org.geometerplus.zlibrary.core.network.ZLNetworkAuthenticationException;
+import org.geometerplus.zlibrary.core.network.ZLNetworkException;
+import org.geometerplus.zlibrary.core.network.ZLNetworkRequest;
 import org.json.simple.JSONValue;
 
-import org.geometerplus.zlibrary.core.network.*;
 import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.ui.android.network.SQLiteCookieDatabase;
-import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.options.SyncOptions;
 import org.geometerplus.fbreader.network.sync.SyncData;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SyncService extends Service implements IBookCollection.Listener<Book> {
 	private static void log(String message) {
@@ -131,7 +154,7 @@ public class SyncService extends Service implements IBookCollection.Listener<Boo
 			final AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 			alarmManager.cancel(syncIntent());
 
-			final Config config = Config.Instance();
+			final Config config = Config.getInstance();
 			config.runOnConnect(new Runnable() {
 				public void run() {
 					config.requestAllValuesForGroup("Sync");
@@ -319,7 +342,7 @@ public class SyncService extends Service implements IBookCollection.Listener<Boo
 		private final String myHash;
 		Status Result = Status.Failure;
 
-		UploadRequest(File file, Book book, String hash) {
+		UploadRequest(java.io.File file, Book book, String hash) {
 			super(SyncOptions.BASE_URL + "app/book.upload", file, false);
 			myBook = book;
 			myHash = hash;

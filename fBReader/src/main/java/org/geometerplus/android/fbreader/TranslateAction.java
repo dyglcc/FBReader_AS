@@ -162,6 +162,9 @@ public class TranslateAction extends FBAndroidAction implements OnPause {
                 Log.e(TAG, "loadVideoAndPlay: set play immediately now");
             }
             Log.e(TAG, "loadVideoAndPlay: is running return");
+            if (activityWeakReference.get() != null) {
+                Toast.makeText(activityWeakReference.get(), "正在加载视频中..请稍等", Toast.LENGTH_LONG).show();
+            }
             return;
         }
         loadRunable.isRunning = true;
@@ -232,6 +235,7 @@ public class TranslateAction extends FBAndroidAction implements OnPause {
             public void onVideoError() {
                 Log.e(TAG, "onVideoError ");
                 loadRunable.isRunning = false;
+                mCountTrans.addAndGet(1);
             }
 
             @Override
@@ -240,6 +244,7 @@ public class TranslateAction extends FBAndroidAction implements OnPause {
                 mRewardVideo = null;
                 loadRunable.isRunning = false;
                 preloadVideo();
+                mCountTrans.addAndGet(1);
             }
 
             @Override
@@ -342,7 +347,7 @@ public class TranslateAction extends FBAndroidAction implements OnPause {
                                 .layout.dialog_symbol, null);
                         StringBuilder builder = new StringBuilder();
                         List<CiBaWordBeanJson.SymbolsBean.PartsBean> parts = symbolsBean.getParts();
-                        if(parts == null){
+                        if (parts == null) {
                             Log.e(TAG, "onResponse:  list is null return ");
                             return;
                         }

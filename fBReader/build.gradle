@@ -14,7 +14,7 @@ android {
 
         ndk {
             moduleName "jniLibs"
-            abiFilters "armeabi", "armeabi-v7a", "x86"
+            abiFilters "armeabi", "armeabi-v7a"
         }
     }
 
@@ -33,6 +33,12 @@ android {
             jni.srcDirs = []
         }
     }
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                outputFileName = outputFileName.replace(".apk","-${rootProject.ext.version_name}-${rootProject.ext.version_code}.apk")
+            }
+    }
 }
 
 repositories {
@@ -43,7 +49,7 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    implementation ('com.android.support:support-v4:27.1.1'){
+    implementation('com.android.support:support-v4:27.1.1') {
         force = true
     }
     implementation files('libs/LingvoIntegration_2.5.2.12.jar')
@@ -64,7 +70,7 @@ dependencies {
 //    implementation (name:'ks-debug',ext:'aar')
     implementation project(path: ':superToasts')
     implementation project(path: ':translate_bd')
-    implementation(name:'msa_mdid_1.0.13',ext:'aar')
+    implementation(name: 'msa_mdid_1.0.13', ext: 'aar')
 //    implementation(name:'ks_adsdk_ad',ext:'aar')
 //    implementation(name:'alicloud-android-man-1.2.5',ext:'aar')
 //    compile 'com.google.code.gson:gson:2.3.0'
@@ -81,11 +87,11 @@ dependencies {
     implementation 'com.sspsdk.android.csj:ssp_sdk_csj:0.9.3_beta_3.2.5.1'
     implementation 'com.sspsdk.android.gdt:ssp_sdk_gdt:0.9.3_beta_4.270.1140.7'
 //    implementation 'com.sspsdk.android.ks:ssp_sdk_ks:0.9.3_beta_3.3.2'
-    implementation (name:'ks-release',ext:'aar')
-    implementation (name:'ks_adsdk_ad-332',ext:'aar')
+    implementation(name: 'ks-release', ext: 'aar')
+    implementation(name: 'ks_adsdk_ad-332', ext: 'aar')
 
     implementation 'com.android.support:multidex:1.0.3'
-    implementation project(path:':guid-support')
+    implementation project(path: ':guid-support')
     implementation 'com.airbnb.android:lottie:2.7.0'
 
 }

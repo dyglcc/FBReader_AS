@@ -2,7 +2,7 @@ package dyg.activity;
 
 public class ReyunConfig {
     private static volatile ReyunConfig instance = null;
-    private static final int DEFAULT_COUNT = 3;
+    private static final int DEFAULT_COUNT = 31;
 
     public static ReyunConfig getInstance() {
         if (instance == null) {
